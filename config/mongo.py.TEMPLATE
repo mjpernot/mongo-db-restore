@@ -1,0 +1,23 @@
+# Mongo DB Configuration file
+# Classification (U)
+# Unclassified until filled.
+
+# All Mongo configuration settings.
+user = "USER"
+japd = "PSWORD"
+# Mongo DB host information
+host = "IP_ADDRESS"
+name = "HOSTNAME"
+# Mongo database port (default is 27017)
+port = 27017
+# Mongo configuration settings
+conf_file = None
+# Authentication required:  True|False
+auth = True
+# Authentication database
+auth_db = "admin"
+# Use Mongo client arguments
+use_arg = True
+# Use Mongo client uri
+use_uri = False
+
