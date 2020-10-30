@@ -6,4 +6,5 @@ The format is based on "Keep a Changelog".  This project adheres to Semantic Ver
 
 ## [0.0.1] - 2020-10-29
 - Initial creation.
+- Restoring a single database using a dump from a mongodump command.
 
