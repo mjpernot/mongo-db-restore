@@ -26,6 +26,7 @@ pipeline {
                 ./test/unit/mongo_db_restore/help_message.py
                 ./test/unit/mongo_db_restore/main.py
                 ./test/unit/mongo_db_restore/run_program.py
+                ./test/unit/mongo_db_restore/single_db.py
                 deactivate
                 rm -rf test_env
                 """
