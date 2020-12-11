@@ -84,6 +84,9 @@ import version
 
 __version__ = version.__version__
 
+# Global
+AUTH_DB = "--authenticationDatabase="
+
 
 def help_message():
 
@@ -116,14 +119,16 @@ def single_db(server, args_array, **kwargs):
 
     """
 
+    global AUTH_DB
+
     subp = gen_libs.get_inst(subprocess)
     args_array = dict(args_array)
     req_arg = list(kwargs.get("req_arg", []))
     opt_arg = dict(kwargs.get("opt_arg", {}))
 
-    if "--authenticationDatabase=" in req_arg:
-        req_arg.remove("--authenticationDatabase=")
-        req_arg.append("--authenticationDatabase=" + server.auth_db)
+    if AUTH_DB in req_arg:
+        req_arg.remove(AUTH_DB)
+        req_arg.append(AUTH_DB + server.auth_db)
 
     load_cmd = mongo_libs.create_cmd(
         server, args_array, "mongorestore",
@@ -192,13 +197,15 @@ def main():
 
     """
 
+    global AUTH_DB
+
     cmdline = gen_libs.get_inst(sys)
     dir_chk_list = ["-d", "-o", "-p"]
     func_dict = {"-S": single_db}
     opt_arg_list = {"-S": "--db=", "-o": "--dir="}
     opt_req_list = ["-c", "-d", "-o"]
     opt_val_list = ["-c", "-d", "-o", "-p", "-S", "-y"]
-    req_arg_list = ["--authenticationDatabase="]
+    req_arg_list = [AUTH_DB]
 
     # Process argument list from command line.
     args_array = arg_parser.arg_parse2(cmdline.argv, opt_val_list)
