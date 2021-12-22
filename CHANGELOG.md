@@ -6,6 +6,7 @@ The format is based on "Keep a Changelog".  This project adheres to Semantic Ver
 
 ## [0.0.2] - 2021-12-22
 ### Changed
+- config/mongo.py.TEMPLATE:  Added SSL, authenication method, and replica set entries.
 - Documentation updates.
 
 
