@@ -22,7 +22,7 @@ pipeline {
                 source test_env/bin/activate
                 pip2 install mock==2.0.0 --user
                 pip2 install psutil==5.4.3 --user
-                pip2 install pymongo==3.2.0 --user
+                pip2 install pymongo==3.8.0 --user
                 ./test/unit/mongo_db_restore/help_message.py
                 ./test/unit/mongo_db_restore/main.py
                 ./test/unit/mongo_db_restore/run_program.py
@@ -82,6 +82,11 @@ pipeline {
                     server.upload(uploadSpec)
                 }
             }
+        }
+    }
+    post {
+        always {
+            cleanWs disableDeferredWipeout: true
         }
     }
 }
