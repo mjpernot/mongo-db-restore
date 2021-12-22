@@ -17,7 +17,9 @@
         -d dir path => Directory path to config file (-c). Required argument.
         -o dir path => Directory path to datbase dump directory.
             Required argument.
+
         -S db_name => Database name to be restored to.
+
         -p dir path => Directory path to mongo programs.
             Only needed if the mongo binary programs do not run properly.
             (i.e. not in the $PATH variable.)
