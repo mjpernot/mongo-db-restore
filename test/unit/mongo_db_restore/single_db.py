@@ -42,8 +42,8 @@ class SubProcess(object):
     Description:  Class which is a representation of the subprocess class.
 
     Methods:
-        __init__ -> Initialize configuration environment.
-        wait -> subprocess.wait method.
+        __init__
+        wait
 
     """
 
@@ -78,15 +78,11 @@ class Server(object):
 
     Description:  Class stub holder for mongo_class.Server class.
 
-    Super-Class:
-
-    Sub-Classes:
-
     Methods:
-        __init__ -> Class initialization.
-        lock_db -> Stub holder for mongo_class.Server.lock_db method.
-        is_locked -> Stub holder for mongo_class.Server.is_locked method.
-        unlock_db -> Stub holder for mongo_class.Server.unlock_db method.
+        __init__
+        lock_db
+        is_locked
+        unlock_db
 
     """
 
@@ -111,7 +107,6 @@ class Server(object):
         Description:  Stub holder for mongo_class.Server.lock_db method.
 
         Arguments:
-            (input) lock -> True|False - Lock the database?
 
         """
 
@@ -148,14 +143,10 @@ class UnitTest(unittest.TestCase):
 
     Description:  Class which is a representation of a unit testing.
 
-    Super-Class:  unittest.TestCase
-
-    Sub-Classes:
-
     Methods:
-        setUp -> Initialize testing environment.
-        test_set_db_auth -> Test with setting the authenication database.
-        test_db_load -> Test with database load successful.
+        setUp
+        test_set_db_auth
+        test_db_load
 
     """
 
