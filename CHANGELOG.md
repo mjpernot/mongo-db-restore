@@ -6,9 +6,12 @@ The format is based on "Keep a Changelog".  This project adheres to Semantic Ver
 
 ## [0.0.2] - 2021-12-22
 ### Changed
+- run_program:  Replaced cmds_gen.disconnect with mongo_libs.connect.
 - config/mongo.py.TEMPLATE:  Added SSL, authenication method, and replica set entries.
 - Documentation updates.
 
+### Removed
+- cmds_gen module
 
 ## [0.0.1] - 2020-10-29
 - Initial creation.

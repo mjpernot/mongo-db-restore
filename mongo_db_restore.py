@@ -111,7 +111,6 @@ import subprocess
 import lib.gen_libs as gen_libs
 import lib.gen_class as gen_class
 import lib.arg_parser as arg_parser
-import lib.cmds_gen as cmds_gen
 import mongo_lib.mongo_class as mongo_class
 import mongo_lib.mongo_libs as mongo_libs
 import version
@@ -205,7 +204,7 @@ def run_program(args_array, func_dict, **kwargs):
             if err_flag:
                 print(err_msg)
 
-        cmds_gen.disconnect([server])
+        mongo_libs.disconnect([server])
 
     else:
         print("Error:  Failed to connect.  Msg: %s" % (errmsg))
