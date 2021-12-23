@@ -145,7 +145,7 @@ class UnitTest(unittest.TestCase):
         self.func_dict2 = {"-S": single_db2}
         self.args_array = {"-d": True, "-c": True, "-S": True}
 
-    @mock.patch("mongo_db_restore.cmds_gen.disconnect",
+    @mock.patch("mongo_db_restore.mongo_libs.disconnect",
                 mock.Mock(return_value=True))
     @mock.patch("mongo_db_restore.mongo_libs.create_instance")
     def test_connect_failure(self, mock_inst):
@@ -167,7 +167,7 @@ class UnitTest(unittest.TestCase):
             self.assertFalse(mongo_db_restore.run_program(self.args_array,
                                                           self.func_dict))
 
-    @mock.patch("mongo_db_restore.cmds_gen.disconnect",
+    @mock.patch("mongo_db_restore.mongo_libs.disconnect",
                 mock.Mock(return_value=True))
     @mock.patch("mongo_db_restore.mongo_libs.create_instance")
     def test_connect_successful(self, mock_inst):
@@ -185,7 +185,7 @@ class UnitTest(unittest.TestCase):
         self.assertFalse(mongo_db_restore.run_program(self.args_array,
                                                       self.func_dict))
 
-    @mock.patch("mongo_db_restore.cmds_gen.disconnect",
+    @mock.patch("mongo_db_restore.mongo_libs.disconnect",
                 mock.Mock(return_value=True))
     @mock.patch("mongo_db_restore.mongo_libs.create_instance")
     def test_load_error(self, mock_inst):
@@ -204,7 +204,7 @@ class UnitTest(unittest.TestCase):
             self.assertFalse(mongo_db_restore.run_program(self.args_array,
                                                           self.func_dict2))
 
-    @mock.patch("mongo_db_restore.cmds_gen.disconnect",
+    @mock.patch("mongo_db_restore.mongo_libs.disconnect",
                 mock.Mock(return_value=True))
     @mock.patch("mongo_db_restore.mongo_libs.create_instance")
     def test_load_successful(self, mock_inst):
@@ -222,7 +222,7 @@ class UnitTest(unittest.TestCase):
         self.assertFalse(mongo_db_restore.run_program(self.args_array,
                                                       self.func_dict))
 
-    @mock.patch("mongo_db_restore.cmds_gen.disconnect",
+    @mock.patch("mongo_db_restore.mongo_libs.disconnect",
                 mock.Mock(return_value=True))
     @mock.patch("mongo_db_restore.mongo_libs.create_instance")
     def test_run_program(self, mock_inst):
