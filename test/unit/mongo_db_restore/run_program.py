@@ -42,8 +42,6 @@ def single_db2(server, args_array, **kwargs):
     Description:  Function stub holder for mongo_db_restore.single_db.
 
     Arguments:
-        (input) server -> Server instance.
-        (input) args_array -> Dictionary of arguments.
 
     """
 
@@ -64,8 +62,6 @@ def single_db(server, args_array, **kwargs):
     Description:  Function stub holder for mongo_db_restore.single_db.
 
     Arguments:
-        (input) server -> Server instance.
-        (input) args_array -> Dictionary of arguments.
 
     """
 
@@ -86,7 +82,7 @@ class Server(object):
     Description:  Class stub holder for mongo_class.Server class.
 
     Methods:
-        __init__ -> Class initialization.
+        __init__
 
     """
 
@@ -125,12 +121,12 @@ class UnitTest(unittest.TestCase):
     Description:  Class which is a representation of a unit testing.
 
     Methods:
-        setUp -> Initialize testing environment.
-        test_connect_failure -> Test with connection is failure.
-        test_connect_successful -> Test with connection is successful.
-        test_load_error -> Test with load returning error.
-        test_load_successful -> Test with successful load. 
-        test_run_program -> Test run_program function.
+        setUp
+        test_connect_failure
+        test_connect_successful
+        test_load_error
+        test_load_successful 
+        test_run_program
 
     """
 
