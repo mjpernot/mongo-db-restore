@@ -22,10 +22,6 @@ auth_db = "admin"
 #   NOTE 2:  FIPS 140-2 environment requires SCRAM-SHA-1 or SCRAM-SHA-256.
 #   NOTE 3:  MONGODB-CR is not suppoerted in Mongodb 4.0 and better.
 auth_mech = "SCRAM-SHA-1"
-# Use Mongo client arguments
-use_arg = True
-# Use Mongo client uri
-use_uri = False
 
  SSL Configuration settings
 # If not set will connect to Mongo without using SSL connections.
