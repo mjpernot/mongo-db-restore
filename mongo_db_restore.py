@@ -17,7 +17,9 @@
         -d dir path => Directory path to config file (-c). Required argument.
         -o dir path => Directory path to datbase dump directory.
             Required argument.
+
         -S db_name => Database name to be restored to.
+
         -p dir path => Directory path to mongo programs.
             Only needed if the mongo binary programs do not run properly.
             (i.e. not in the $PATH variable.)
@@ -31,30 +33,60 @@
             connect to the primary database to complete this operation.
 
         Mongo configuration file format (config/mongo.py.TEMPLATE).  The
-            configuration file format for the Mongo connection used for
-            inserting data into a database.
-            There are two ways to connect:  single or replica set.
+            configuration file format is for connecting to a Mongo database or
+            replica set for monitoring.  A second configuration file can also
+            be used to connect to a Mongo database or replica set to insert the
+            results of the performance monitoring into.
 
-            1.)  Single database connection:
+            There are two ways to connect methods:  single Mongo database or a
+            Mongo replica set.
+
+            Single database connection:
 
             # Single Configuration file for Mongo Database Server.
             user = "USER"
             japd = "PSWORD"
-            # Mongo DB host information
-            host = "IP_ADDRESS"
+            host = "HOST_IP"
             name = "HOSTNAME"
-            # Mongo database port (default is 27017)
             port = 27017
-            # Mongo configuration settings
             conf_file = None
-            # Authentication required:  True|False
             auth = True
-            # Authentication database
             auth_db = "admin"
-            # Use Mongo client arguments
-            use_arg = True
-            # Use Mongo client uri
-            use_uri = False
+            auth_mech = "SCRAM-SHA-1"
+
+            Replica set connection:  Same format as above, but with these
+                additional entries at the end of the configuration file.  By
+                default all these entries are set to None to represent not
+                connecting to a replica set.
+
+            repset = "REPLICA_SET_NAME"
+            repset_hosts = "HOST1:PORT, HOST2:PORT, HOST3:PORT, [...]"
+            db_auth = "AUTHENTICATION_DATABASE"
+
+            Note:  If using SSL connections then set one or more of the
+                following entries.  This will automatically enable SSL
+                connections. Below are the configuration settings for SSL
+                connections.  See configuration file for details on each entry:
+
+            ssl_client_ca = None
+            ssl_client_key = None
+            ssl_client_cert = None
+            ssl_client_phrase = None
+
+            Note:  FIPS Environment for Mongo.
+              If operating in a FIPS 104-2 environment, this package will
+              require at least a minimum of pymongo==3.8.0 or better.  It will
+              also require a manual change to the auth.py module in the pymongo
+              package.  See below for changes to auth.py.
+
+            - Locate the auth.py file python installed packages on the system
+                in the pymongo package directory.
+            - Edit the file and locate the "_password_digest" function.
+            - In the "_password_digest" function there is an line that should
+                match: "md5hash = hashlib.md5()".  Change it to
+                "md5hash = hashlib.md5(usedforsecurity=False)".
+            - Lastly, it will require the Mongo configuration file entry
+                auth_mech to be set to: SCRAM-SHA-1 or SCRAM-SHA-256.
 
         Configuration modules -> Name is runtime dependent as it can be used to
             connect to different databases with different names.
@@ -77,7 +109,6 @@ import subprocess
 import lib.gen_libs as gen_libs
 import lib.gen_class as gen_class
 import lib.arg_parser as arg_parser
-import lib.cmds_gen as cmds_gen
 import mongo_lib.mongo_class as mongo_class
 import mongo_lib.mongo_libs as mongo_libs
 import version
@@ -171,7 +202,7 @@ def run_program(args_array, func_dict, **kwargs):
             if err_flag:
                 print(err_msg)
 
-        cmds_gen.disconnect([server])
+        mongo_libs.disconnect([server])
 
     else:
         print("Error:  Failed to connect.  Msg: %s" % (errmsg))
