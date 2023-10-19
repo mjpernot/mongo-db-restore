@@ -35,6 +35,65 @@ import version
 __version__ = version.__version__
 
 
+class ArgParser(object):
+
+    """Class:  ArgParser
+
+    Description:  Class stub holder for gen_class.ArgParser class.
+
+    Methods:
+        __init__
+        arg_dir_chk
+        arg_require
+
+    """
+
+    def __init__(self):
+
+        """Method:  __init__
+
+        Description:  Class initialization.
+
+        Arguments:
+
+        """
+
+        self.cmdline = None
+        self.args_array = dict()
+        self.opt_req = None
+        self.opt_req2 = True
+        self.dir_perms_chk = None
+        self.dir_perms_chk2 = True
+
+    def arg_dir_chk(self, dir_perms_chk):
+
+        """Method:  arg_dir_chk
+
+        Description:  Method stub holder for gen_class.ArgParser.arg_dir_chk.
+
+        Arguments:
+
+        """
+
+        self.dir_perms_chk = dir_perms_chk
+
+        return self.dir_perms_chk2
+
+    def arg_require(self, opt_req):
+
+        """Method:  arg_require
+
+        Description:  Method stub holder for gen_class.ArgParser.arg_require.
+
+        Arguments:
+
+        """
+
+        self.opt_req = opt_req
+
+        return self.opt_req2
+
+
 class ProgramLock(object):
 
     """Class:  ProgramLock
@@ -90,7 +149,7 @@ class UnitTest(unittest.TestCase):
         Arguments:
 
         """
-
+STOPPED HERE
         self.args_array = {"-c": "CfgFile", "-d": "CfgDir"}
         self.args_array2 = {"-c": "CfgFile", "-d": "CfgDir", "-y": "Flavor"}
         self.proglock = ProgramLock(["cmdline"], "FlavorID")
