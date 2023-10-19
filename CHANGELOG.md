@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on "Keep a Changelog".  This project adheres to Semantic Versioning.
 
 
+## [0.0.3] - 2023-10-19
+- Upgrade python-lib to v2.10.1
+- Upgrade mongo-libs to v4.2.7
+
+
 ## [0.0.2] - 2021-12-22
 - Upgrade mongo-libs to v4.2.1
 - Upgrade python-lib to v2.9.2
