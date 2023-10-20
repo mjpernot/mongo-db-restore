@@ -45,6 +45,7 @@ class ArgParser(object):
         __init__
         arg_dir_chk
         arg_require
+        get_val
 
     """
 
@@ -92,6 +93,18 @@ class ArgParser(object):
         self.opt_req = opt_req
 
         return self.opt_req2
+
+    def get_val(self, skey, def_val=None):
+
+        """Method:  get_val
+
+        Description:  Method stub holder for gen_class.ArgParser.get_val.
+
+        Arguments:
+
+        """
+
+        return self.args_array.get(skey, def_val)
 
 
 class ProgramLock(object):
@@ -149,13 +162,16 @@ class UnitTest(unittest.TestCase):
         Arguments:
 
         """
-STOPPED HERE
-        self.args_array = {"-c": "CfgFile", "-d": "CfgDir"}
-        self.args_array2 = {"-c": "CfgFile", "-d": "CfgDir", "-y": "Flavor"}
+
+        self.args = ArgParser()
+        self.args2 = ArgParser()
+        self.args.args_array = {"-c": "CfgFile", "-d": "CfgDir"}
+        self.args2.args_array = {
+            "-c": "CfgFile", "-d": "CfgDir", "-y": "Flavor"}
         self.proglock = ProgramLock(["cmdline"], "FlavorID")
 
     @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser.arg_parse2")
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
     def test_help_true(self, mock_arg, mock_help):
 
         """Function:  test_help_true
@@ -166,15 +182,14 @@ STOPPED HERE
 
         """
 
-        mock_arg.return_value = self.args_array
+        mock_arg.return_value = self.args
         mock_help.return_value = True
 
         self.assertFalse(mongo_db_restore.main())
 
-    @mock.patch("mongo_db_restore.arg_parser.arg_require")
     @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser.arg_parse2")
-    def test_help_false(self, mock_arg, mock_help, mock_req):
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_help_false(self, mock_arg, mock_help):
 
         """Function:  test_help_false
 
@@ -184,33 +199,15 @@ STOPPED HERE
 
         """
 
-        mock_arg.return_value = self.args_array
+        self.args.opt_req2 = False
+
+        mock_arg.return_value = self.args
         mock_help.return_value = False
-        mock_req.return_value = True
-
-        self.assertFalse(mongo_db_restore.main())
-
-    @mock.patch("mongo_db_restore.arg_parser.arg_require")
-    @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser.arg_parse2")
-    def test_arg_req_true(self, mock_arg, mock_help, mock_req):
-
-        """Function:  test_arg_req_true
-
-        Description:  Test arg_require if returns true.
-
-        Arguments:
-
-        """
-
-        mock_arg.return_value = self.args_array
-        mock_help.return_value = False
-        mock_req.return_value = True
 
         self.assertFalse(mongo_db_restore.main())
 
     @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser")
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
     def test_arg_req_false(self, mock_arg, mock_help):
 
         """Function:  test_arg_req_false
@@ -221,38 +218,35 @@ STOPPED HERE
 
         """
 
-        mock_arg.arg_parse2.return_value = self.args_array
+        self.args.opt_req2 = False
+
+        mock_arg.return_value = self.args
         mock_help.return_value = False
-        mock_arg.arg_require.return_value = False
-        mock_arg.arg_dir_chk_crt.return_value = True
 
         self.assertFalse(mongo_db_restore.main())
 
     @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser")
-    def test_arg_dir_chk_crt_true(self, mock_arg, mock_help):
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_arg_req_true(self, mock_arg, mock_help):
 
-        """Function:  test_arg_dir_chk_crt_true
+        """Function:  test_arg_req_true
 
-        Description:  Test arg_dir_chk_crt if returns true.
+        Description:  Test arg_require if returns true.
 
         Arguments:
 
         """
 
-        mock_arg.arg_parse2.return_value = self.args_array
+        self.args.dir_perms_chk2 = False
+
+        mock_arg.return_value = self.args
         mock_help.return_value = False
-        mock_arg.arg_require.return_value = False
-        mock_arg.arg_dir_chk_crt.return_value = True
 
         self.assertFalse(mongo_db_restore.main())
 
-    @mock.patch("mongo_db_restore.gen_class.ProgramLock")
-    @mock.patch("mongo_db_restore.run_program")
     @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser")
-    def test_arg_dir_chk_crt_false(self, mock_arg, mock_help, mock_run,
-                                   mock_lock):
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_arg_dir_chk_crt_false(self, mock_arg, mock_help):
 
         """Function:  test_arg_dir_chk_crt_false
 
@@ -262,20 +256,39 @@ STOPPED HERE
 
         """
 
-        mock_arg.arg_parse2.return_value = self.args_array
+        self.args.dir_perms_chk2 = False
+
+        mock_arg.return_value = self.args
         mock_help.return_value = False
-        mock_arg.arg_require.return_value = False
-        mock_arg.arg_dir_chk_crt.return_value = False
-        mock_run.return_value = True
-        mock_lock.return_value = self.proglock
 
         self.assertFalse(mongo_db_restore.main())
 
     @mock.patch("mongo_db_restore.gen_class.ProgramLock")
     @mock.patch("mongo_db_restore.run_program")
     @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser")
-    def test_run_program(self, mock_arg, mock_help, mock_run, mock_lock):
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_arg_dir_chk_crt_true(self, mock_arg, mock_help, mock_run,
+                                  mock_lock):
+
+        """Function:  test_arg_dir_chk_crt_true
+
+        Description:  Test arg_dir_chk_crt if returns true.
+
+        Arguments:
+
+        """
+
+        mock_arg.return_value = self.args
+        mock_help.return_value = False
+        mock_lock.return_value = self.proglock
+
+        self.assertFalse(mongo_db_restore.main())
+
+    @mock.patch("mongo_db_restore.run_program", mock.Mock(return_value=True))
+    @mock.patch("mongo_db_restore.gen_class.ProgramLock")
+    @mock.patch("mongo_db_restore.gen_libs.help_func")
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_run_program(self, mock_arg, mock_help, mock_lock):
 
         """Function:  test_run_program
 
@@ -285,20 +298,17 @@ STOPPED HERE
 
         """
 
-        mock_arg.arg_parse2.return_value = self.args_array
+        mock_arg.return_value = self.args
         mock_help.return_value = False
-        mock_arg.arg_require.return_value = False
-        mock_arg.arg_dir_chk_crt.return_value = False
-        mock_run.return_value = True
         mock_lock.return_value = self.proglock
 
         self.assertFalse(mongo_db_restore.main())
 
+    @mock.patch("mongo_db_restore.run_program", mock.Mock(return_value=True))
     @mock.patch("mongo_db_restore.gen_class.ProgramLock")
-    @mock.patch("mongo_db_restore.run_program")
     @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser")
-    def test_programlock_true(self, mock_arg, mock_help, mock_run, mock_lock):
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_programlock_true(self, mock_arg, mock_help, mock_lock):
 
         """Function:  test_programlock_true
 
@@ -308,20 +318,17 @@ STOPPED HERE
 
         """
 
-        mock_arg.arg_parse2.return_value = self.args_array
+        mock_arg.return_value = self.args
         mock_help.return_value = False
-        mock_arg.arg_require.return_value = False
-        mock_arg.arg_dir_chk_crt.return_value = False
-        mock_run.return_value = True
         mock_lock.return_value = self.proglock
 
         self.assertFalse(mongo_db_restore.main())
 
+    @mock.patch("mongo_db_restore.run_program", mock.Mock(return_value=True))
     @mock.patch("mongo_db_restore.gen_class.ProgramLock")
-    @mock.patch("mongo_db_restore.run_program")
     @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser")
-    def test_programlock_false(self, mock_arg, mock_help, mock_run, mock_lock):
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_programlock_false(self, mock_arg, mock_help, mock_lock):
 
         """Function:  test_programlock_false
 
@@ -331,22 +338,19 @@ STOPPED HERE
 
         """
 
-        mock_arg.arg_parse2.return_value = self.args_array
+        mock_arg.return_value = self.args
         mock_help.return_value = False
-        mock_arg.arg_require.return_value = False
-        mock_arg.arg_dir_chk_crt.return_value = False
-        mock_run.return_value = True
         mock_lock.side_effect = \
             mongo_db_restore.gen_class.SingleInstanceException
 
         with gen_libs.no_std_out():
             self.assertFalse(mongo_db_restore.main())
 
+    @mock.patch("mongo_db_restore.run_program", mock.Mock(return_value=True))
     @mock.patch("mongo_db_restore.gen_class.ProgramLock")
-    @mock.patch("mongo_db_restore.run_program")
     @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser")
-    def test_programlock_id(self, mock_arg, mock_help, mock_run, mock_lock):
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_programlock_id(self, mock_arg, mock_help, mock_lock):
 
         """Function:  test_programlock_id
 
@@ -356,11 +360,8 @@ STOPPED HERE
 
         """
 
-        mock_arg.arg_parse2.return_value = self.args_array2
+        mock_arg.return_value = self.args2
         mock_help.return_value = False
-        mock_arg.arg_require.return_value = False
-        mock_arg.arg_dir_chk_crt.return_value = False
-        mock_run.return_value = True
         mock_lock.return_value = self.proglock
 
         self.assertFalse(mongo_db_restore.main())
