@@ -171,14 +171,14 @@ def single_db(server, args_array, **kwargs):
     return False, None
 
 
-def run_program(args_array, func_dict, **kwargs):
+def run_program(args, func_dict, **kwargs):
 
     """Function:  run_program
 
     Description:  Creates class instance(s) and controls flow of the program.
 
     Arguments:
-        (input) args_array -> Dict of command line options and values
+        (input) args -> ArgParser class instance
         (input) func_dict -> Dictionary list of functions and options
         (input) **kwargs:
             opt_arg -> Dictionary of additional options to add
@@ -186,17 +186,16 @@ def run_program(args_array, func_dict, **kwargs):
 
     """
 
-    args_array = dict(args_array)
     func_dict = dict(func_dict)
-    server = mongo_libs.create_instance(args_array["-c"], args_array["-d"],
-                                        mongo_class.Server)
+    server = mongo_libs.create_instance(
+        args.get_val("-c"), args.get_val("-d"), mongo_class.Server)
     status, errmsg = server.connect()
 
     if status:
 
-        # Intersect args_array and func_dict to find which functions to call.
-        for item in set(args_array.keys()) & set(func_dict.keys()):
-            err_flag, err_msg = func_dict[item](server, args_array, **kwargs)
+        # Intersect args_array and func_dict to find which functions to call
+        for item in set(args.get_args_keys()) & set(func_dict.keys()):
+            err_flag, err_msg = func_dict[item](server, args, **kwargs)
 
             if err_flag:
                 print(err_msg)
@@ -242,10 +241,6 @@ def main():
     if not gen_libs.help_func(args, __version__, help_message)  \
        and args.arg_require(opt_req=opt_req_list)               \
        and args.arg_dir_chk(dir_perms_chk=dir_perms_chk):
-        
-#    if not gen_libs.help_func(args_array, __version__, help_message) \
-#       and not arg_parser.arg_require(args_array, opt_req_list) \
-#       and not arg_parser.arg_dir_chk_crt(args_array, dir_chk_list):
 
         try:
             prog_lock = gen_class.ProgramLock(

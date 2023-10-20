@@ -35,7 +35,8 @@ import version
 __version__ = version.__version__
 
 
-def single_db2(server, args_array, **kwargs):
+# STOPPED HERE
+def single_db2(server, args, **kwargs):
 
     """Method:  single_db2
 
@@ -48,14 +49,14 @@ def single_db2(server, args_array, **kwargs):
     status = True
     err_msg = "Dump Failure"
 
-    if server and args_array:
+    if server and args:
         status = True
         err_msg = "Load Failure"
 
     return status, err_msg
 
 
-def single_db(server, args_array, **kwargs):
+def single_db(server, args, **kwargs):
 
     """Method:  single_db
 
@@ -68,7 +69,7 @@ def single_db(server, args_array, **kwargs):
     status = False
     err_msg = None
 
-    if server and args_array:
+    if server and args:
         status = False
         err_msg = None
 
