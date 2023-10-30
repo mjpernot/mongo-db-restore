@@ -26,7 +26,8 @@
         -y value => A flavor id for the program lock.  To create unique lock.
         -v => Display version of this program.
         -h => Help and usage message.
-            NOTE 1:  -v or -h overrides the other options.
+
+        NOTE 1:  -v or -h overrides the other options.
 
     Notes:
         Warning:  If restoring to a Mongo database in a replica set, must
@@ -92,26 +93,32 @@
             connect to different databases with different names.
 
     Example:
-        mongo_db_restore.py -c mongo -d config -o /db_dump 
+        mongo_db_restore.py -c mongo -d config -o /db_dump
 
 """
 
 # Libraries and Global Variables
+from __future__ import print_function
+from __future__ import absolute_import
 
 # Standard
 import sys
-import os
 import subprocess
 
-# Third-party
-
 # Local
-import lib.gen_libs as gen_libs
-import lib.gen_class as gen_class
-import lib.arg_parser as arg_parser
-import mongo_lib.mongo_class as mongo_class
-import mongo_lib.mongo_libs as mongo_libs
-import version
+try:
+    from .lib import gen_libs
+    from .lib import gen_class
+    from .mongo_lib import mongo_libs
+    from .mongo_lib import mongo_class
+    from . import version
+
+except (ValueError, ImportError) as err:
+    import lib.gen_libs as gen_libs
+    import lib.gen_class as gen_class
+    import mongo_lib.mongo_libs as mongo_libs
+    import mongo_lib.mongo_class as mongo_class
+    import version
 
 __version__ = version.__version__
 
@@ -133,71 +140,67 @@ def help_message():
     print(__doc__)
 
 
-def single_db(server, args_array, **kwargs):
+def single_db(server, args, **kwargs):
 
     """Function:  single_db
 
     Description:  Restore single database.
 
     Arguments:
-        (input) server -> Database server instance.
-        (input) args_array -> Array of command line options and values.
+        (input) server -> Database server instance
+        (input) args -> ArgParser class instance
         (input) **kwargs:
-            opt_arg -> Dictionary of additional options to add.
-            req_arg -> List of options to add to cmd line.
-        (output) False -> If an error has occurred.
-        (output) None -> Error message.
+            opt_arg -> Dictionary of additional options to add
+            req_arg -> List of options to add to cmd line
+        (output) False -> If an error has occurred
+        (output) None -> Error message
 
     """
 
     global AUTH_DB
 
-    subp = gen_libs.get_inst(subprocess)
-    args_array = dict(args_array)
-    req_arg = list(kwargs.get("req_arg", []))
-    opt_arg = dict(kwargs.get("opt_arg", {}))
+    req_arg = list(kwargs.get("req_arg", list()))
+    opt_arg = dict(kwargs.get("opt_arg", dict()))
 
     if AUTH_DB in req_arg:
         req_arg.remove(AUTH_DB)
         req_arg.append(AUTH_DB + server.auth_db)
 
     load_cmd = mongo_libs.create_cmd(
-        server, args_array, "mongorestore",
-        arg_parser.arg_set_path(args_array, "-p"), req_arg=req_arg,
+        server, args, "mongorestore", "-p", req_arg=req_arg,
         opt_arg=opt_arg)
 
-    proc1 = subp.Popen(load_cmd)
+    proc1 = subprocess.Popen(load_cmd)
     proc1.wait()
 
     return False, None
 
 
-def run_program(args_array, func_dict, **kwargs):
+def run_program(args, func_dict, **kwargs):
 
     """Function:  run_program
 
     Description:  Creates class instance(s) and controls flow of the program.
 
     Arguments:
-        (input) args_array -> Dict of command line options and values.
-        (input) func_dict -> Dictionary list of functions and options.
+        (input) args -> ArgParser class instance
+        (input) func_dict -> Dictionary list of functions and options
         (input) **kwargs:
-            opt_arg -> Dictionary of additional options to add.
-            req_arg -> List of options to add to cmd line.
+            opt_arg -> Dictionary of additional options to add
+            req_arg -> List of options to add to cmd line
 
     """
 
-    args_array = dict(args_array)
     func_dict = dict(func_dict)
-    server = mongo_libs.create_instance(args_array["-c"], args_array["-d"],
-                                        mongo_class.Server)
+    server = mongo_libs.create_instance(
+        args.get_val("-c"), args.get_val("-d"), mongo_class.Server)
     status, errmsg = server.connect()
 
     if status:
 
-        # Intersect args_array and func_dict to find which functions to call.
-        for item in set(args_array.keys()) & set(func_dict.keys()):
-            err_flag, err_msg = func_dict[item](server, args_array, **kwargs)
+        # Intersect args_array and func_dict to find which functions to call
+        for item in set(args.get_args_keys()) & set(func_dict.keys()):
+            err_flag, err_msg = func_dict[item](server, args, **kwargs)
 
             if err_flag:
                 print(err_msg)
@@ -216,12 +219,12 @@ def main():
         line arguments and values.
 
     Variables:
-        dir_chk_list -> contains options which will be directories.
-        func_dict -> dictionary list for the function calls or other options.
-        opt_arg_list -> contains optional arguments for the command line.
-        opt_req_list -> contains the options that are required for the program.
-        opt_val_list -> contains options which require values.
-        req_arg_list -> contains arguments to add to command line by default.
+        dir_perms_chk -> contains directories and their octal permissions
+        func_dict -> dictionary list for the function calls or other options
+        opt_arg_list -> contains optional arguments for the command line
+        opt_req_list -> contains the options that are required for the program
+        opt_val_list -> contains options which require values
+        req_arg_list -> contains arguments to add to command line by default
 
     Arguments:
         (input) argv -> Arguments from the command line.
@@ -230,31 +233,30 @@ def main():
 
     global AUTH_DB
 
-    cmdline = gen_libs.get_inst(sys)
-    dir_chk_list = ["-d", "-o", "-p"]
+    dir_perms_chk = {"-d": 5, "-o": 7, "-p": 5}
     func_dict = {"-S": single_db}
     opt_arg_list = {"-S": "--db=", "-o": "--dir="}
     opt_req_list = ["-c", "-d", "-o"]
     opt_val_list = ["-c", "-d", "-o", "-p", "-S", "-y"]
     req_arg_list = [AUTH_DB]
 
-    # Process argument list from command line.
-    args_array = arg_parser.arg_parse2(cmdline.argv, opt_val_list)
+    # Process argument list from command line
+    args = gen_class.ArgParser(sys.argv, opt_val=opt_val_list, do_parse=True)
 
-    if not gen_libs.help_func(args_array, __version__, help_message) \
-       and not arg_parser.arg_require(args_array, opt_req_list) \
-       and not arg_parser.arg_dir_chk_crt(args_array, dir_chk_list):
+    if not gen_libs.help_func(args, __version__, help_message)  \
+       and args.arg_require(opt_req=opt_req_list)               \
+       and args.arg_dir_chk(dir_perms_chk=dir_perms_chk):
 
         try:
-            prog_lock = gen_class.ProgramLock(cmdline.argv,
-                                              args_array.get("-y", ""))
-            run_program(args_array, func_dict, opt_arg=opt_arg_list,
-                        req_arg=req_arg_list)
+            prog_lock = gen_class.ProgramLock(
+                sys.argv, args.get_val("-y", def_val=""))
+            run_program(
+                args, func_dict, opt_arg=opt_arg_list, req_arg=req_arg_list)
             del prog_lock
 
         except gen_class.SingleInstanceException:
             print("WARNING:  Lock in place for mongo_db_restore with id: %s"
-                  % (args_array.get("-y", "")))
+                  % (args.get_val("-y", def_val="")))
 
 
 if __name__ == "__main__":

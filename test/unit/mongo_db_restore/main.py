@@ -17,13 +17,7 @@
 # Standard
 import sys
 import os
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
-
-# Third-party
+import unittest
 import mock
 
 # Local
@@ -33,6 +27,78 @@ import lib.gen_libs as gen_libs
 import version
 
 __version__ = version.__version__
+
+
+class ArgParser(object):
+
+    """Class:  ArgParser
+
+    Description:  Class stub holder for gen_class.ArgParser class.
+
+    Methods:
+        __init__
+        arg_dir_chk
+        arg_require
+        get_val
+
+    """
+
+    def __init__(self):
+
+        """Method:  __init__
+
+        Description:  Class initialization.
+
+        Arguments:
+
+        """
+
+        self.cmdline = None
+        self.args_array = dict()
+        self.opt_req = None
+        self.opt_req2 = True
+        self.dir_perms_chk = None
+        self.dir_perms_chk2 = True
+
+    def arg_dir_chk(self, dir_perms_chk):
+
+        """Method:  arg_dir_chk
+
+        Description:  Method stub holder for gen_class.ArgParser.arg_dir_chk.
+
+        Arguments:
+
+        """
+
+        self.dir_perms_chk = dir_perms_chk
+
+        return self.dir_perms_chk2
+
+    def arg_require(self, opt_req):
+
+        """Method:  arg_require
+
+        Description:  Method stub holder for gen_class.ArgParser.arg_require.
+
+        Arguments:
+
+        """
+
+        self.opt_req = opt_req
+
+        return self.opt_req2
+
+    def get_val(self, skey, def_val=None):
+
+        """Method:  get_val
+
+        Description:  Method stub holder for gen_class.ArgParser.get_val.
+
+        Arguments:
+
+        """
+
+        return self.args_array.get(skey, def_val)
 
 
 class ProgramLock(object):
@@ -91,13 +157,17 @@ class UnitTest(unittest.TestCase):
 
         """
 
-        self.args_array = {"-c": "CfgFile", "-d": "CfgDir"}
-        self.args_array2 = {"-c": "CfgFile", "-d": "CfgDir", "-y": "Flavor"}
+        self.args = ArgParser()
+        self.args2 = ArgParser()
+        self.args.args_array = {"-c": "CfgFile", "-d": "CfgDir"}
+        self.args2.args_array = {
+            "-c": "CfgFile", "-d": "CfgDir", "-y": "Flavor"}
         self.proglock = ProgramLock(["cmdline"], "FlavorID")
 
-    @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser.arg_parse2")
-    def test_help_true(self, mock_arg, mock_help):
+    @mock.patch("mongo_db_restore.gen_libs.help_func",
+                mock.Mock(return_value=True))
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_help_true(self, mock_arg):
 
         """Function:  test_help_true
 
@@ -107,15 +177,14 @@ class UnitTest(unittest.TestCase):
 
         """
 
-        mock_arg.return_value = self.args_array
-        mock_help.return_value = True
+        mock_arg.return_value = self.args
 
         self.assertFalse(mongo_db_restore.main())
 
-    @mock.patch("mongo_db_restore.arg_parser.arg_require")
-    @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser.arg_parse2")
-    def test_help_false(self, mock_arg, mock_help, mock_req):
+    @mock.patch("mongo_db_restore.gen_libs.help_func",
+                mock.Mock(return_value=False))
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_help_false(self, mock_arg):
 
         """Function:  test_help_false
 
@@ -125,34 +194,16 @@ class UnitTest(unittest.TestCase):
 
         """
 
-        mock_arg.return_value = self.args_array
-        mock_help.return_value = False
-        mock_req.return_value = True
+        self.args.opt_req2 = False
+
+        mock_arg.return_value = self.args
 
         self.assertFalse(mongo_db_restore.main())
 
-    @mock.patch("mongo_db_restore.arg_parser.arg_require")
-    @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser.arg_parse2")
-    def test_arg_req_true(self, mock_arg, mock_help, mock_req):
-
-        """Function:  test_arg_req_true
-
-        Description:  Test arg_require if returns true.
-
-        Arguments:
-
-        """
-
-        mock_arg.return_value = self.args_array
-        mock_help.return_value = False
-        mock_req.return_value = True
-
-        self.assertFalse(mongo_db_restore.main())
-
-    @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser")
-    def test_arg_req_false(self, mock_arg, mock_help):
+    @mock.patch("mongo_db_restore.gen_libs.help_func",
+                mock.Mock(return_value=False))
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_arg_req_false(self, mock_arg):
 
         """Function:  test_arg_req_false
 
@@ -162,38 +213,35 @@ class UnitTest(unittest.TestCase):
 
         """
 
-        mock_arg.arg_parse2.return_value = self.args_array
-        mock_help.return_value = False
-        mock_arg.arg_require.return_value = False
-        mock_arg.arg_dir_chk_crt.return_value = True
+        self.args.opt_req2 = False
+
+        mock_arg.return_value = self.args
 
         self.assertFalse(mongo_db_restore.main())
 
-    @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser")
-    def test_arg_dir_chk_crt_true(self, mock_arg, mock_help):
+    @mock.patch("mongo_db_restore.gen_libs.help_func",
+                mock.Mock(return_value=False))
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_arg_req_true(self, mock_arg):
 
-        """Function:  test_arg_dir_chk_crt_true
+        """Function:  test_arg_req_true
 
-        Description:  Test arg_dir_chk_crt if returns true.
+        Description:  Test arg_require if returns true.
 
         Arguments:
 
         """
 
-        mock_arg.arg_parse2.return_value = self.args_array
-        mock_help.return_value = False
-        mock_arg.arg_require.return_value = False
-        mock_arg.arg_dir_chk_crt.return_value = True
+        self.args.dir_perms_chk2 = False
+
+        mock_arg.return_value = self.args
 
         self.assertFalse(mongo_db_restore.main())
 
-    @mock.patch("mongo_db_restore.gen_class.ProgramLock")
-    @mock.patch("mongo_db_restore.run_program")
-    @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser")
-    def test_arg_dir_chk_crt_false(self, mock_arg, mock_help, mock_run,
-                                   mock_lock):
+    @mock.patch("mongo_db_restore.gen_libs.help_func",
+                mock.Mock(return_value=False))
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_arg_dir_chk_crt_false(self, mock_arg):
 
         """Function:  test_arg_dir_chk_crt_false
 
@@ -203,20 +251,38 @@ class UnitTest(unittest.TestCase):
 
         """
 
-        mock_arg.arg_parse2.return_value = self.args_array
-        mock_help.return_value = False
-        mock_arg.arg_require.return_value = False
-        mock_arg.arg_dir_chk_crt.return_value = False
-        mock_run.return_value = True
+        self.args.dir_perms_chk2 = False
+
+        mock_arg.return_value = self.args
+
+        self.assertFalse(mongo_db_restore.main())
+
+    @mock.patch("mongo_db_restore.gen_libs.help_func",
+                mock.Mock(return_value=False))
+    @mock.patch("mongo_db_restore.run_program", mock.Mock(return_value=True))
+    @mock.patch("mongo_db_restore.gen_class.ProgramLock")
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_arg_dir_chk_crt_true(self, mock_arg, mock_lock):
+
+        """Function:  test_arg_dir_chk_crt_true
+
+        Description:  Test arg_dir_chk_crt if returns true.
+
+        Arguments:
+
+        """
+
+        mock_arg.return_value = self.args
         mock_lock.return_value = self.proglock
 
         self.assertFalse(mongo_db_restore.main())
 
+    @mock.patch("mongo_db_restore.gen_libs.help_func",
+                mock.Mock(return_value=False))
+    @mock.patch("mongo_db_restore.run_program", mock.Mock(return_value=True))
     @mock.patch("mongo_db_restore.gen_class.ProgramLock")
-    @mock.patch("mongo_db_restore.run_program")
-    @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser")
-    def test_run_program(self, mock_arg, mock_help, mock_run, mock_lock):
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_run_program(self, mock_arg, mock_lock):
 
         """Function:  test_run_program
 
@@ -226,20 +292,17 @@ class UnitTest(unittest.TestCase):
 
         """
 
-        mock_arg.arg_parse2.return_value = self.args_array
-        mock_help.return_value = False
-        mock_arg.arg_require.return_value = False
-        mock_arg.arg_dir_chk_crt.return_value = False
-        mock_run.return_value = True
+        mock_arg.return_value = self.args
         mock_lock.return_value = self.proglock
 
         self.assertFalse(mongo_db_restore.main())
 
+    @mock.patch("mongo_db_restore.gen_libs.help_func",
+                mock.Mock(return_value=False))
+    @mock.patch("mongo_db_restore.run_program", mock.Mock(return_value=True))
     @mock.patch("mongo_db_restore.gen_class.ProgramLock")
-    @mock.patch("mongo_db_restore.run_program")
-    @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser")
-    def test_programlock_true(self, mock_arg, mock_help, mock_run, mock_lock):
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_programlock_true(self, mock_arg, mock_lock):
 
         """Function:  test_programlock_true
 
@@ -249,20 +312,17 @@ class UnitTest(unittest.TestCase):
 
         """
 
-        mock_arg.arg_parse2.return_value = self.args_array
-        mock_help.return_value = False
-        mock_arg.arg_require.return_value = False
-        mock_arg.arg_dir_chk_crt.return_value = False
-        mock_run.return_value = True
+        mock_arg.return_value = self.args
         mock_lock.return_value = self.proglock
 
         self.assertFalse(mongo_db_restore.main())
 
+    @mock.patch("mongo_db_restore.gen_libs.help_func",
+                mock.Mock(return_value=False))
+    @mock.patch("mongo_db_restore.run_program", mock.Mock(return_value=True))
     @mock.patch("mongo_db_restore.gen_class.ProgramLock")
-    @mock.patch("mongo_db_restore.run_program")
-    @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser")
-    def test_programlock_false(self, mock_arg, mock_help, mock_run, mock_lock):
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_programlock_false(self, mock_arg, mock_lock):
 
         """Function:  test_programlock_false
 
@@ -272,22 +332,19 @@ class UnitTest(unittest.TestCase):
 
         """
 
-        mock_arg.arg_parse2.return_value = self.args_array
-        mock_help.return_value = False
-        mock_arg.arg_require.return_value = False
-        mock_arg.arg_dir_chk_crt.return_value = False
-        mock_run.return_value = True
+        mock_arg.return_value = self.args
         mock_lock.side_effect = \
             mongo_db_restore.gen_class.SingleInstanceException
 
         with gen_libs.no_std_out():
             self.assertFalse(mongo_db_restore.main())
 
+    @mock.patch("mongo_db_restore.gen_libs.help_func",
+                mock.Mock(return_value=False))
+    @mock.patch("mongo_db_restore.run_program", mock.Mock(return_value=True))
     @mock.patch("mongo_db_restore.gen_class.ProgramLock")
-    @mock.patch("mongo_db_restore.run_program")
-    @mock.patch("mongo_db_restore.gen_libs.help_func")
-    @mock.patch("mongo_db_restore.arg_parser")
-    def test_programlock_id(self, mock_arg, mock_help, mock_run, mock_lock):
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_programlock_id(self, mock_arg, mock_lock):
 
         """Function:  test_programlock_id
 
@@ -297,11 +354,7 @@ class UnitTest(unittest.TestCase):
 
         """
 
-        mock_arg.arg_parse2.return_value = self.args_array2
-        mock_help.return_value = False
-        mock_arg.arg_require.return_value = False
-        mock_arg.arg_dir_chk_crt.return_value = False
-        mock_run.return_value = True
+        mock_arg.return_value = self.args2
         mock_lock.return_value = self.proglock
 
         self.assertFalse(mongo_db_restore.main())
