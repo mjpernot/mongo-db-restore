@@ -169,7 +169,7 @@ class UnitTest(unittest.TestCase):
         test_connect_failure
         test_connect_successful
         test_load_error
-        test_load_successful 
+        test_load_successful
         test_run_program
 
     """

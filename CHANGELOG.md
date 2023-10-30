@@ -11,6 +11,7 @@ The format is based on "Keep a Changelog".  This project adheres to Semantic Ver
 - Updated to work in Python 3 too
 
 ### Changed
+- single_db: Update arguments to mongo_libs.create_cmd call.
 - Converted imports to use Python 2.7 or Python 3.
 - Multiple functions: Replaced the arg_parser code with gen_class.ArgParser code.
 - main, single_db: Removed gen_libs.get_inst call.

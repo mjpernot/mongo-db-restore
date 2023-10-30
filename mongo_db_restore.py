@@ -93,7 +93,7 @@
             connect to different databases with different names.
 
     Example:
-        mongo_db_restore.py -c mongo -d config -o /db_dump 
+        mongo_db_restore.py -c mongo -d config -o /db_dump
 
 """
 
@@ -103,7 +103,6 @@ from __future__ import absolute_import
 
 # Standard
 import sys
-import os
 import subprocess
 
 # Local
