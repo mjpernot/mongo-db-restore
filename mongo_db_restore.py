@@ -98,20 +98,28 @@
 """
 
 # Libraries and Global Variables
+from __future__ import print_function
+from __future__ import absolute_import
 
 # Standard
 import sys
 import os
 import subprocess
 
-# Third-party
-
 # Local
-import lib.gen_libs as gen_libs
-import lib.gen_class as gen_class
-import mongo_lib.mongo_class as mongo_class
-import mongo_lib.mongo_libs as mongo_libs
-import version
+try:
+    from .lib import gen_libs
+    from .lib import gen_class
+    from .mongo_lib import mongo_libs
+    from .mongo_lib import mongo_class
+    from . import version
+
+except (ValueError, ImportError) as err:
+    import lib.gen_libs as gen_libs
+    import lib.gen_class as gen_class
+    import mongo_lib.mongo_libs as mongo_libs
+    import mongo_lib.mongo_class as mongo_class
+    import version
 
 __version__ = version.__version__
 
@@ -133,7 +141,7 @@ def help_message():
     print(__doc__)
 
 
-def single_db(server, args_array, **kwargs):
+def single_db(server, args, **kwargs):
 
     """Function:  single_db
 
@@ -141,7 +149,7 @@ def single_db(server, args_array, **kwargs):
 
     Arguments:
         (input) server -> Database server instance
-        (input) args_array -> Array of command line options and values
+        (input) args -> ArgParser class instance
         (input) **kwargs:
             opt_arg -> Dictionary of additional options to add
             req_arg -> List of options to add to cmd line
@@ -152,17 +160,15 @@ def single_db(server, args_array, **kwargs):
 
     global AUTH_DB
 
-    args_array = dict(args_array)
-    req_arg = list(kwargs.get("req_arg", []))
-    opt_arg = dict(kwargs.get("opt_arg", {}))
+    req_arg = list(kwargs.get("req_arg", list()))
+    opt_arg = dict(kwargs.get("opt_arg", dict()))
 
     if AUTH_DB in req_arg:
         req_arg.remove(AUTH_DB)
         req_arg.append(AUTH_DB + server.auth_db)
 
     load_cmd = mongo_libs.create_cmd(
-        server, args_array, "mongorestore",
-        arg_parser.arg_set_path(args_array, "-p"), req_arg=req_arg,
+        server, args, "mongorestore", "-p", req_arg=req_arg,
         opt_arg=opt_arg)
 
     proc1 = subprocess.Popen(load_cmd)
