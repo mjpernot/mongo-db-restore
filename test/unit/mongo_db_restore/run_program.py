@@ -17,13 +17,7 @@
 # Standard
 import sys
 import os
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
-
-# Third-party
+import unittest
 import mock
 
 # Local
@@ -35,7 +29,7 @@ import version
 __version__ = version.__version__
 
 
-def single_db2(server, args_array, **kwargs):
+def single_db2(server, args, **kwargs):
 
     """Method:  single_db2
 
@@ -48,14 +42,14 @@ def single_db2(server, args_array, **kwargs):
     status = True
     err_msg = "Dump Failure"
 
-    if server and args_array:
+    if server and args:
         status = True
         err_msg = "Load Failure"
 
     return status, err_msg
 
 
-def single_db(server, args_array, **kwargs):
+def single_db(server, args, **kwargs):
 
     """Method:  single_db
 
@@ -68,11 +62,61 @@ def single_db(server, args_array, **kwargs):
     status = False
     err_msg = None
 
-    if server and args_array:
+    if server and args:
         status = False
         err_msg = None
 
     return status, err_msg
+
+
+class ArgParser(object):
+
+    """Class:  ArgParser
+
+    Description:  Class stub holder for gen_class.ArgParser class.
+
+    Methods:
+        __init__
+        get_args_keys
+        get_val
+
+    """
+
+    def __init__(self):
+
+        """Method:  __init__
+
+        Description:  Class initialization.
+
+        Arguments:
+
+        """
+
+        self.args_array = {"-c": "rabbitmq", "-d": "config"}
+
+    def get_args_keys(self):
+
+        """Method:  get_args_keys
+
+        Description:  Method stub holder for gen_class.ArgParser.get_args_keys.
+
+        Arguments:
+
+        """
+
+        return list(self.args_array.keys())
+
+    def get_val(self, skey, def_val=None):
+
+        """Method:  get_val
+
+        Description:  Method stub holder for gen_class.ArgParser.get_val.
+
+        Arguments:
+
+        """
+
+        return self.args_array.get(skey, def_val)
 
 
 class Server(object):
@@ -125,7 +169,7 @@ class UnitTest(unittest.TestCase):
         test_connect_failure
         test_connect_successful
         test_load_error
-        test_load_successful 
+        test_load_successful
         test_run_program
 
     """
@@ -141,9 +185,10 @@ class UnitTest(unittest.TestCase):
         """
 
         self.server = Server()
-        self.func_dict = {"-S": single_db}
-        self.func_dict2 = {"-S": single_db2}
-        self.args_array = {"-d": True, "-c": True, "-S": True}
+        self.args = ArgParser()
+        self.func_names = {"-S": single_db}
+        self.func_names2 = {"-S": single_db2}
+        self.args.args_array = {"-d": True, "-c": True, "-S": True}
 
     @mock.patch("mongo_db_restore.mongo_libs.disconnect",
                 mock.Mock(return_value=True))
@@ -164,8 +209,8 @@ class UnitTest(unittest.TestCase):
         mock_inst.return_value = self.server
 
         with gen_libs.no_std_out():
-            self.assertFalse(mongo_db_restore.run_program(self.args_array,
-                                                          self.func_dict))
+            self.assertFalse(
+                mongo_db_restore.run_program(self.args, self.func_names))
 
     @mock.patch("mongo_db_restore.mongo_libs.disconnect",
                 mock.Mock(return_value=True))
@@ -182,8 +227,8 @@ class UnitTest(unittest.TestCase):
 
         mock_inst.return_value = self.server
 
-        self.assertFalse(mongo_db_restore.run_program(self.args_array,
-                                                      self.func_dict))
+        self.assertFalse(
+            mongo_db_restore.run_program(self.args, self.func_names))
 
     @mock.patch("mongo_db_restore.mongo_libs.disconnect",
                 mock.Mock(return_value=True))
@@ -201,8 +246,8 @@ class UnitTest(unittest.TestCase):
         mock_inst.return_value = self.server
 
         with gen_libs.no_std_out():
-            self.assertFalse(mongo_db_restore.run_program(self.args_array,
-                                                          self.func_dict2))
+            self.assertFalse(
+                mongo_db_restore.run_program(self.args, self.func_names2))
 
     @mock.patch("mongo_db_restore.mongo_libs.disconnect",
                 mock.Mock(return_value=True))
@@ -219,8 +264,8 @@ class UnitTest(unittest.TestCase):
 
         mock_inst.return_value = self.server
 
-        self.assertFalse(mongo_db_restore.run_program(self.args_array,
-                                                      self.func_dict))
+        self.assertFalse(
+            mongo_db_restore.run_program(self.args, self.func_names))
 
     @mock.patch("mongo_db_restore.mongo_libs.disconnect",
                 mock.Mock(return_value=True))
@@ -237,8 +282,8 @@ class UnitTest(unittest.TestCase):
 
         mock_inst.return_value = self.server
 
-        self.assertFalse(mongo_db_restore.run_program(self.args_array,
-                                                      self.func_dict))
+        self.assertFalse(
+            mongo_db_restore.run_program(self.args, self.func_names))
 
 
 if __name__ == "__main__":
