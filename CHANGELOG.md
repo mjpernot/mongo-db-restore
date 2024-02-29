@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on "Keep a Changelog".  This project adheres to Semantic Versioning.
 
 
+## [0.0.4] - 2024-02-29
+- Updated to work in Red Hat 8
+- Updated mongo-lib to v4.2.9
+- Updated python-lib to v3.0.3
+
+### Changed
+- Set simplejson to 3.12.0 for Python 3.
+- Set chardet to 3.0.4 for Python 2.
+- Documentation updates.
+
+
 ## [0.0.3] - 2023-10-19
 - Upgrade python-lib to v2.10.1
 - Upgrade mongo-libs to v4.2.7
