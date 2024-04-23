@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on "Keep a Changelog".  This project adheres to Semantic Versioning.
 
 
+## [0.0.5] - 2024-04-23
+- Updated mongo-lib to v4.3.0
+- Added TLS capability
+- Set pymongo to 3.12.3 for Python 2 and Python 3.
+
+### Changed
+- Set pymongo to 3.12.3 for Python 2 and Python 3.
+- config/mongo.py.TEMPLATE: Added TLS entries.
+- Documentation updates.
+
+
 ## [0.0.4] - 2024-02-29
 - Updated to work in Red Hat 8
 - Updated mongo-lib to v4.2.9
