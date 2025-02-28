@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on "Keep a Changelog".  This project adheres to Semantic Versioning.
 
 
+## [0.1.0] - 2025-02-28
+Alpha release
+
+- Add pre-header check on allowable Python versions to run.
+- Added pymongo==4.10.1 for Python 3.9 and Python 3.12.
+- Added dnspython==2.7.0 for Python 3.9 and Python 3.12.
+- Removed support for Python 2.7.
+- Updated python-lib v4.0.0
+- Updated mongo-lib v4.5.0
+
+### Added
+- Support for Mongo 7.0
+
+### Changed
+- single_db: Replaced dict() with {} and list() with [].
+- main, run_program: Converted strings to f-strings.
+- Documentation changes.
+
+### Removed
+- Support for Mongo 3.4
+
+
 ## [0.0.8] - 2024-11-22
 - Updated distro==1.9.0 for Python 3
 - Updated psutil==5.9.4 for Python 3

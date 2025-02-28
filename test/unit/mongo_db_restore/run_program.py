@@ -22,14 +22,14 @@ import mock
 
 # Local
 sys.path.append(os.getcwd())
-import mongo_db_restore
-import lib.gen_libs as gen_libs
-import version
+import mongo_db_restore                         # pylint:disable=E0401,C0413
+import lib.gen_libs as gen_libs             # pylint:disable=E0401,C0413,R0402
+import version                                  # pylint:disable=E0401,C0413
 
 __version__ = version.__version__
 
 
-def single_db2(server, args, **kwargs):
+def single_db2(server, args, **kwargs):                 # pylint:disable=W0613
 
     """Method:  single_db2
 
@@ -49,7 +49,7 @@ def single_db2(server, args, **kwargs):
     return status, err_msg
 
 
-def single_db(server, args, **kwargs):
+def single_db(server, args, **kwargs):                  # pylint:disable=W0613
 
     """Method:  single_db
 
@@ -69,7 +69,7 @@ def single_db(server, args, **kwargs):
     return status, err_msg
 
 
-class ArgParser(object):
+class ArgParser():
 
     """Class:  ArgParser
 
@@ -119,7 +119,7 @@ class ArgParser(object):
         return self.args_array.get(skey, def_val)
 
 
-class Server(object):
+class Server():                                         # pylint:disable=R0903
 
     """Class:  Server
 
