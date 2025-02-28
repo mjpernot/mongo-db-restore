@@ -22,13 +22,13 @@ import mock
 
 # Local
 sys.path.append(os.getcwd())
-import mongo_db_restore
-import version
+import mongo_db_restore                         # pylint:disable=E0401,C0413
+import version                                  # pylint:disable=E0401,C0413
 
 __version__ = version.__version__
 
 
-class ArgParser(object):
+class ArgParser():                                      # pylint:disable=R0903
 
     """Class:  ArgParser
 
@@ -52,7 +52,7 @@ class ArgParser(object):
         self.args_array = {"-c": "rabbitmq", "-d": "config"}
 
 
-class SubProcess(object):
+class SubProcess():                                     # pylint:disable=R0903
 
     """Class:  SubProcess
 
@@ -74,8 +74,6 @@ class SubProcess(object):
 
         """
 
-        pass
-
     def wait(self):
 
         """Method:  wait
@@ -86,10 +84,8 @@ class SubProcess(object):
 
         """
 
-        pass
 
-
-class Server(object):
+class Server():
 
     """Class:  Server
 
@@ -150,8 +146,6 @@ class Server(object):
         Arguments:
 
         """
-
-        pass
 
 
 class UnitTest(unittest.TestCase):

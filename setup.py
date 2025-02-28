@@ -41,12 +41,8 @@ setuptools.setup(
         #  3 - Beta
         #  4 - Field
         #  5 - Production/Stable
-        "Development Status :: 1 - Pre-Alpha",
+        "Development Status :: 2 - Alpha",
         "Operating System :: Linux",
-        "Operating System :: Linux :: Centos",
-        "Operating System :: Linux :: Centos :: 7",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 2.7",
         "Operating System :: Linux :: RedHat",
         "Operating System :: Linux :: RedHat :: 8",
         "Programming Language :: Python",
@@ -59,5 +55,5 @@ setuptools.setup(
         "Programming Language :: Python :: 3.12",
         "Topic :: Database",
         "Topic :: Database :: Mongodb",
-        "Topic :: Database :: Mongodb :: 3.4",
-        "Topic :: Database :: Mongodb :: 4.2"])
+        "Topic :: Database :: Mongodb :: 4.2",
+        "Topic :: Database :: Mongodb :: 7.0"])
