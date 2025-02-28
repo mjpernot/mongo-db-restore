@@ -28,7 +28,7 @@ auth_mech = "SCRAM-SHA-1"
 # Values: TLS | SSL | None
 auth_type = None
 
- SSL Configuration settings
+# SSL Configuration settings
 # If not set will connect to Mongo without using SSL connections.
 # File containing the SSL certificate authority.
 # Example: ssl_client_ca = "/opt/mongo/certs/ca.pem"

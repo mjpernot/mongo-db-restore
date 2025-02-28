@@ -1,7 +1,25 @@
 #!/usr/bin/python
 # Classification (U)
 
-"""Program:  mongo_db_restore.py
+# Shell commands follow
+# Next line is bilingual: it starts a comment in Python & is a no-op in shell
+""":"
+
+# Find a suitable python interpreter (can adapt for specific needs)
+# NOTE: Ignore this section if passing the -h option to the program.
+#   This code must be included in the program's initial docstring.
+for cmd in python3.12 python3.9 ; do
+   command -v > /dev/null $cmd && exec $cmd $0 "$@"
+done
+
+echo "OMG Python not found, exiting...."
+
+exit 2
+
+# Previous line is bilingual: it ends a comment in Python & is a no-op in shell
+# Shell commands end here
+
+   Program:  mongo_db_restore.py
 
     Description:  The mongo_db_restore program loads a database dump into a
         a Mongo database.
@@ -103,11 +121,11 @@
     Example:
         mongo_db_restore.py -c mongo -d config -o /db_dump
 
-"""
+":"""
+# Python program follows
+
 
 # Libraries and Global Variables
-from __future__ import print_function
-from __future__ import absolute_import
 
 # Standard
 import sys
@@ -122,16 +140,15 @@ try:
     from . import version
 
 except (ValueError, ImportError) as err:
-    import lib.gen_libs as gen_libs
-    import lib.gen_class as gen_class
-    import mongo_lib.mongo_libs as mongo_libs
-    import mongo_lib.mongo_class as mongo_class
+    import lib.gen_libs as gen_libs                     # pylint:disable=R0402
+    import lib.gen_class as gen_class                   # pylint:disable=R0402
+    import mongo_lib.mongo_libs as mongo_libs           # pylint:disable=R0402
+    import mongo_lib.mongo_class as mongo_class         # pylint:disable=R0402
     import version
 
 __version__ = version.__version__
 
 # Global
-AUTH_DB = "--authenticationDatabase="
 
 
 def help_message():
@@ -165,20 +182,20 @@ def single_db(server, args, **kwargs):
 
     """
 
-    global AUTH_DB
+    auth_db = "--authenticationDatabase="
 
-    req_arg = list(kwargs.get("req_arg", list()))
-    opt_arg = dict(kwargs.get("opt_arg", dict()))
+    req_arg = list(kwargs.get("req_arg", []))
+    opt_arg = dict(kwargs.get("opt_arg", {}))
 
-    if AUTH_DB in req_arg:
-        req_arg.remove(AUTH_DB)
-        req_arg.append(AUTH_DB + server.auth_db)
+    if auth_db in req_arg:
+        req_arg.remove(auth_db)
+        req_arg.append(auth_db + server.auth_db)
 
     load_cmd = mongo_libs.create_cmd(
         server, args, "mongorestore", "-p", req_arg=req_arg,
         opt_arg=opt_arg)
 
-    proc1 = subprocess.Popen(load_cmd)
+    proc1 = subprocess.Popen(load_cmd)                  # pylint:disable=R1732
     proc1.wait()
 
     return False, None
@@ -216,7 +233,7 @@ def run_program(args, func_dict, **kwargs):
         mongo_libs.disconnect([server])
 
     else:
-        print("Error:  Failed to connect.  Msg: %s" % (errmsg))
+        print(f"Error:  Failed to connect.  Msg: {errmsg}")
 
 
 def main():
@@ -239,14 +256,12 @@ def main():
 
     """
 
-    global AUTH_DB
-
     dir_perms_chk = {"-d": 5, "-o": 7, "-p": 5}
     func_dict = {"-S": single_db}
     opt_arg_list = {"-S": "--db=", "-o": "--dir="}
     opt_req_list = ["-c", "-d", "-o"]
     opt_val_list = ["-c", "-d", "-o", "-p", "-S", "-y"]
-    req_arg_list = [AUTH_DB]
+    req_arg_list = ["--authenticationDatabase="]
 
     # Process argument list from command line
     args = gen_class.ArgParser(sys.argv, opt_val=opt_val_list)
@@ -264,8 +279,8 @@ def main():
             del prog_lock
 
         except gen_class.SingleInstanceException:
-            print("WARNING:  Lock in place for mongo_db_restore with id: %s"
-                  % (args.get_val("-y", def_val="")))
+            print(f'WARNING:  Lock in place for mongo_db_restore with id:'
+                  f' {args.get_val("-y", def_val="")}')
 
 
 if __name__ == "__main__":
