@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/bin/sh
 # Classification (U)
 
 # Shell commands follow
