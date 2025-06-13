@@ -201,7 +201,8 @@ def single_db(server, args, **kwargs):
 #        server, args, "mongorestore", "-p", req_arg=req_arg,
 #        opt_arg=opt_arg)
 
-    proc1 = subprocess.Popen(cmd, stdin=proc2.stdout)   # pylint:disable=R1732
+    proc1 = subprocess.Popen(                           # pylint:disable=R1732
+        load_cmd, stdin=proc2.stdout)
     proc1.wait()
 #    proc1 = subprocess.Popen(load_cmd)                  # pylint:disable=R1732
 
