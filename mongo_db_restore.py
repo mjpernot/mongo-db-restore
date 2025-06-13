@@ -31,8 +31,8 @@ exit 2
             [-v | -h]
 
     Arguments:
-        -c file => Server configuration file.  Required argument.
-        -d dir path => Directory path to config file (-c). Required argument.
+        -c file => Server configuration file.
+        -d dir path => Directory path to config file (-c).
         -o dir path => Directory path to datbase dump directory.
             Required argument.
 
@@ -100,8 +100,8 @@ exit 2
                     tls_certkey = None
                     tls_certkey_phrase = None
 
-            Note:  FIPS Environment for Mongo.
-              If operating in a FIPS 104-2 environment, this package will
+            Note:  Secure Environment for Mongo.
+              If operating in a secure environment, this package will
               require at least a minimum of pymongo==3.8.0 or better.  It will
               also require a manual change to the auth.py module in the pymongo
               package.  See below for changes to auth.py.
@@ -177,28 +177,59 @@ def single_db(server, args, **kwargs):
         (input) **kwargs:
             opt_arg -> Dictionary of additional options to add
             req_arg -> List of options to add to cmd line
-        (output) False -> If an error has occurred
-        (output) None -> Error message
+        (output) status -> True|False - If an error has occurred and associated
+            error message
 
     """
 
+    status = (False, None)
     auth_db = "--authenticationDatabase="
 
-    req_arg = list(kwargs.get("req_arg", []))
-    opt_arg = dict(kwargs.get("opt_arg", {}))
+#    req_arg = list(kwargs.get("req_arg", []))
+#    opt_arg = dict(kwargs.get("opt_arg", {}))
 
-    if auth_db in req_arg:
-        req_arg.remove(auth_db)
-        req_arg.append(auth_db + server.auth_db)
+#    if auth_db in req_arg:
+#        req_arg.remove(auth_db)
+#        req_arg.append(auth_db + server.auth_db)
 
     load_cmd = mongo_libs.create_cmd(
-        server, args, "mongorestore", "-p", req_arg=req_arg,
-        opt_arg=opt_arg)
+        server, args, "mongorestore", "-p", no_pass=True, **kwargs)
+    proc2 = subprocess.Popen(                           # pylint:disable=R1732
+        ["echo", server.japd], stdout=subprocess.PIPE)
 
-    proc1 = subprocess.Popen(load_cmd)                  # pylint:disable=R1732
+#    load_cmd = mongo_libs.create_cmd(
+#        server, args, "mongorestore", "-p", req_arg=req_arg,
+#        opt_arg=opt_arg)
+
+    proc1 = subprocess.Popen(cmd, stdin=proc2.stdout)   # pylint:disable=R1732
     proc1.wait()
+#    proc1 = subprocess.Popen(load_cmd)                  # pylint:disable=R1732
 
-    return False, None
+    return status
+
+
+def get_req_options(server, arg_req_dict):
+
+    """Function:  get_req_options
+
+    Description:  Assigns configuration entry values to required options.  If
+        the entry is not set (e.g. None), then the option is skipped.
+
+    Arguments:
+        (input) server -> Database server instance
+        (input) arg_req_dict -> Contains dictionary of config and required
+            option
+        (output) arg_rep -> List of required options with values
+
+    """
+
+    arg_req_dict = dict(arg_req_dict)
+
+    arg_req = [arg_req_dict[item] + getattr(server, item)
+               for item in list(arg_req_dict.keys())
+               if hasattr(server, item) and getattr(server, item)]
+
+    return arg_req
 
 
 def run_program(args, func_dict, **kwargs):
@@ -212,20 +243,26 @@ def run_program(args, func_dict, **kwargs):
         (input) func_dict -> Dictionary list of functions and options
         (input) **kwargs:
             opt_arg -> Dictionary of additional options to add
-            req_arg -> List of options to add to cmd line
+            arg_req_dict -> contains link between config and required option
+#            req_arg -> List of options to add to cmd line
 
     """
 
     func_dict = dict(func_dict)
+    arg_req_dict = dict(kwargs.get("arg_req_dict", {}))
+    opt_arg = dict(kwargs.get("opt_arg", {}))
     server = mongo_libs.create_instance(
         args.get_val("-c"), args.get_val("-d"), mongo_class.Server)
     status, errmsg = server.connect()
 
     if status:
+        req_arg = get_req_options(server, arg_req_dict)
 
         # Intersect args_array and func_dict to find which functions to call
         for item in set(args.get_args_keys()) & set(func_dict.keys()):
-            err_flag, err_msg = func_dict[item](server, args, **kwargs)
+            err_flag, err_msg = func_dict[item](
+                server, args, req_arg=req_arg, opt_arg=opt_arg)
+#            err_flag, err_msg = func_dict[item](server, args, **kwargs)
 
             if err_flag:
                 print(err_msg)
@@ -244,24 +281,26 @@ def main():
         line arguments and values.
 
     Variables:
+        arg_req_dict -> contains link between config entry and required option
         dir_perms_chk -> contains directories and their octal permissions
         func_dict -> dictionary list for the function calls or other options
         opt_arg_list -> contains optional arguments for the command line
         opt_req_list -> contains the options that are required for the program
         opt_val_list -> contains options which require values
-        req_arg_list -> contains arguments to add to command line by default
+#        req_arg_list -> contains arguments to add to command line by default
 
     Arguments:
         (input) argv -> Arguments from the command line.
 
     """
 
+    arg_req_dict = {"auth_db": "--authenticationDatabase="}
     dir_perms_chk = {"-d": 5, "-o": 7, "-p": 5}
     func_dict = {"-S": single_db}
     opt_arg_list = {"-S": "--db=", "-o": "--dir="}
     opt_req_list = ["-c", "-d", "-o"]
     opt_val_list = ["-c", "-d", "-o", "-p", "-S", "-y"]
-    req_arg_list = ["--authenticationDatabase="]
+#    req_arg_list = ["--authenticationDatabase="]
 
     # Process argument list from command line
     args = gen_class.ArgParser(sys.argv, opt_val=opt_val_list)
@@ -275,7 +314,10 @@ def main():
             prog_lock = gen_class.ProgramLock(
                 sys.argv, args.get_val("-y", def_val=""))
             run_program(
-                args, func_dict, opt_arg=opt_arg_list, req_arg=req_arg_list)
+                args, func_dict, opt_arg=opt_arg_list,
+                arg_req_dict=arg_req_dict)
+#            run_program(
+#                args, func_dict, opt_arg=opt_arg_list, req_arg=req_arg_list)
             del prog_lock
 
         except gen_class.SingleInstanceException:

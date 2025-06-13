@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on "Keep a Changelog".  This project adheres to Semantic Versioning.
 
 
+## [0.1.2] - 2025-06-13
+- Removed support for Mongo v4.2
+- Moved setting authentication database to its own function.
+
+### Added
+- get_req_options: Assigns configuration entry values to required options.
+
+### Changed
+- single_db: Removed setting authentication database and set up a second subprocess call to increase security.
+- run_program: Replaced req_arg_list with arg_req_dict and added call to get_req_options.
+- main: Replaced req_arg_list with arg_req_dict to allow for other options to be included in the future.
+
+
 ## [0.1.1] - 2025-03-11
 - Updated mongo-libs to v4.5.1
 
