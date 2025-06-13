@@ -25,22 +25,26 @@ exit 2
         a Mongo database.
 
     Usage:
-        mongo_db_restore.py -c file -d path -o path
-            {-S db_name}
+        mongo_db_restore.py -c file -d path
+            {-S db_name -o path [-z] [-i] [-r] [-k] [-y] [-e]}
             [-p path] [-y flavor_id]
             [-v | -h]
 
     Arguments:
         -c file => Server configuration file.
         -d dir path => Directory path to config file (-c).
-        -o dir path => Directory path to datbase dump directory.
-            Required argument.
 
         -S db_name => Database name to be restored to.
+            -o dir path => Directory path to database dump directory.
+            -z => Uncompress dump files.
+            -i => Turn off TLS checking.
+            -r => Restore database users and roles.
+            -k => Drop and recreate collection before restore.
+            -y => Run a dryrun of the restore.
+            -e => Run in verbose mode.
 
         -p dir path => Directory path to mongo programs.
-            Only needed if the mongo binary programs do not run properly.
-            (i.e. not in the $PATH variable.)
+            NOTE: Only needed if the mongo binary programs do not run properly.
         -y value => A flavor id for the program lock.  To create unique lock.
         -v => Display version of this program.
         -h => Help and usage message.
@@ -296,9 +300,12 @@ def main():
     """
 
     arg_req_dict = {"auth_db": "--authenticationDatabase="}
-    dir_perms_chk = {"-d": 5, "-o": 7, "-p": 5}
+    dir_perms_chk = {"-d": 5, "-o": 5, "-p": 5}
     func_dict = {"-S": single_db}
-    opt_arg_list = {"-S": "--db=", "-o": "--dir="}
+    opt_arg_list = {
+        "-S": "--db=", "-o": "--dir=", "-z": "--gzip", "-i": "--tlsInsecure",
+        "-r": "--restoreDbUsersAndRoles", "-k": "--drop", "-y": "--dryRun",
+        "-e": "--verbose"}
     opt_req_list = ["-c", "-d", "-o"]
     opt_val_list = ["-c", "-d", "-o", "-p", "-S", "-y"]
 #    req_arg_list = ["--authenticationDatabase="]

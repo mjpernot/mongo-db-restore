@@ -7,6 +7,7 @@ The format is based on "Keep a Changelog".  This project adheres to Semantic Ver
 ## [0.1.2] - 2025-06-13
 - Removed support for Mongo v4.2
 - Moved setting authentication database to its own function.
+- Added a number of options for the mongorestore command such as: restore users and roles, verbose mode, drop collection, dry run mode, uncompress dumps.
 
 ### Added
 - get_req_options: Assigns configuration entry values to required options.

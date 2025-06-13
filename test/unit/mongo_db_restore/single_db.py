@@ -61,6 +61,8 @@ class SubProcess():                                     # pylint:disable=R0903
     Methods:
         __init__
         wait
+        PIPE
+        stdout
 
     """
 
@@ -79,6 +81,26 @@ class SubProcess():                                     # pylint:disable=R0903
         """Method:  wait
 
         Description:  Mock representation of subprocess.wait method.
+
+        Arguments:
+
+        """
+
+    def PIPE(self):                                     # pylint:disable=C0103
+
+        """Method:  PIPE
+
+        Description:  Mock representation of subprocess.PIPE method.
+
+        Arguments:
+
+        """
+
+    def stdout(self):
+
+        """Method:  stdout
+
+        Description:  Mock representation of subprocess.stdout method.
 
         Arguments:
 
@@ -112,6 +134,7 @@ class Server():
         self.db_path = "Database_Directory_Path"
         self.locked = False
         self.auth_db = "Auth_Database"
+        self.japd = "JAPD"
 
     def lock_db(self, lock):
 
@@ -156,7 +179,6 @@ class UnitTest(unittest.TestCase):
 
     Methods:
         setUp
-        test_set_db_auth
         test_db_load
 
     """
@@ -179,25 +201,6 @@ class UnitTest(unittest.TestCase):
 
     @mock.patch("mongo_db_restore.subprocess.Popen")
     @mock.patch("mongo_db_restore.mongo_libs.create_cmd")
-    def test_set_db_auth(self, mock_cmd, mock_subp):
-
-        """Function:  test_set_db_auth
-
-        Description:  Test with setting the authenication database.
-
-        Arguments:
-
-        """
-
-        mock_cmd.return_value = "LoadCommand"
-        mock_subp.return_value = self.subp
-
-        self.assertEqual(
-            mongo_db_restore.single_db(
-                self.server, self.args, req_arg=self.req_arg), (False, None))
-
-    @mock.patch("mongo_db_restore.subprocess.Popen")
-    @mock.patch("mongo_db_restore.mongo_libs.create_cmd")
     def test_db_load(self, mock_cmd, mock_subp):
 
         """Function:  test_db_load
@@ -208,7 +211,7 @@ class UnitTest(unittest.TestCase):
 
         """
 
-        mock_cmd.return_value = "LoadCommand"
+        mock_cmd.return_value = "mongorestore"
         mock_subp.return_value = self.subp
 
         self.assertEqual(

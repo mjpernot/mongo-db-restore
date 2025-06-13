@@ -6,6 +6,7 @@
 
 echo ""
 echo "Unit testing..."
+/usr/bin/python test/unit/mongo_db_restore/get_req_options.py
 /usr/bin/python test/unit/mongo_db_restore/help_message.py
 /usr/bin/python test/unit/mongo_db_restore/main.py
 /usr/bin/python test/unit/mongo_db_restore/run_program.py
