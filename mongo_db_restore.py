@@ -225,6 +225,10 @@ def single_collection(server, args, **kwargs):
     # Do not allow restoring of users or roles during a collection restore
     del opt_arg["-r"]
 
+    # Added database to the end of the -o argument and check read perms
+    # Added collection_name.bson to end of  -o argument and check read perms
+    # Return status
+
     restore(server, args, req_arg=req_arg, opt_arg=opt_arg)
 
 def single_db(server, args, **kwargs):
@@ -241,6 +245,9 @@ def single_db(server, args, **kwargs):
             req_arg -> List of options to add to cmd line
 
     """
+
+    # Added database to the end of the -o argument and check read perms
+    # Return status
 
     restore(server, args, **kwargs)
 
@@ -322,11 +329,12 @@ def run_program(args, func_dict, **kwargs):
 
         # Intersect args_array and func_dict to find which functions to call
         for item in set(args.get_args_keys()) & set(func_dict.keys()):
-            func_dict[item](server, args, req_arg=req_arg, opt_arg=opt_arg)
+            err_flag, err_msg = func_dict[item](
+                server, args, req_arg=req_arg, opt_arg=opt_arg)
 #            err_flag, err_msg = func_dict[item](server, args, **kwargs)
 
-#            if err_flag:
-#                print(err_msg)
+            if err_flag:
+                print(err_msg)
 
         mongo_libs.disconnect([server])
 

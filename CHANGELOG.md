@@ -18,7 +18,7 @@ The format is based on "Keep a Changelog".  This project adheres to Semantic Ver
 
 ### Changed
 - main: Added arg_cond_req and arg_xor_dict calls to the argument checks.
-- single_db: Removed setting authentication database and set up a second subprocess call to increase security and remove status return of function.
+- single_db: Removed setting authentication database and set up a second subprocess call to increase security.
 - run_program: Replaced req_arg_list with arg_req_dict, added call to get_req_options and removed status on check on returning function calls.
 - main: Replaced req_arg_list with arg_req_dict to allow for other options to be included in the future.
 
