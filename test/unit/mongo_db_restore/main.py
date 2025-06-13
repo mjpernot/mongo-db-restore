@@ -37,9 +37,11 @@ class ArgParser():
 
     Methods:
         __init__
+        arg_cond_req
         arg_dir_chk
         arg_require
         get_val
+        arg_xor_dict
         arg_parse2
 
     """
@@ -60,7 +62,25 @@ class ArgParser():
         self.opt_req2 = True
         self.dir_perms_chk = None
         self.dir_perms_chk2 = True
+        self.opt_xor_val = None
+        self.opt_xor_val2 = True
+        self.opt_con_req = None
+        self.opt_con_req2 = True
         self.argparse2 = True
+
+    def arg_cond_req(self, opt_con_req):
+
+        """Method:  arg_cond_req
+
+        Description:  Method stub holder for gen_class.ArgParser.arg_cond_req.
+
+        Arguments:
+
+        """
+
+        self.opt_con_req = opt_con_req
+
+        return self.opt_con_req2
 
     def arg_dir_chk(self, dir_perms_chk):
 
@@ -101,6 +121,20 @@ class ArgParser():
         """
 
         return self.args_array.get(skey, def_val)
+
+    def arg_xor_dict(self, opt_xor_val):
+
+        """Method:  arg_xor_dict
+
+        Description:  Method stub holder for gen_class.ArgParser.arg_xor_dict.
+
+        Arguments:
+
+        """
+
+        self.opt_xor_val = opt_xor_val
+
+        return self.opt_xor_val2
 
     def arg_parse2(self):
 
@@ -156,6 +190,10 @@ class UnitTest(unittest.TestCase):
         test_arg_req_false
         test_arg_dir_chk_crt_true
         test_arg_dir_chk_crt_false
+        test_arg_xor_dict_false
+        test_arg_xor_dict_true
+        test_arg_cond_req_false
+        test_arg_cond_req_true
         test_run_program
         test_programlock_id
         test_programlock_false
@@ -317,6 +355,83 @@ class UnitTest(unittest.TestCase):
         """Function:  test_arg_dir_chk_crt_true
 
         Description:  Test arg_dir_chk_crt if returns true.
+
+        Arguments:
+
+        """
+
+        mock_arg.return_value = self.args
+        mock_lock.return_value = self.proglock
+
+        self.assertFalse(mongo_db_restore.main())
+
+    @mock.patch("mongo_db_restore.gen_libs.help_func",
+                mock.Mock(return_value=False))
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_arg_xor_dict_false(self, mock_arg):
+
+        """Function:  test_arg_xor_dict_false
+
+        Description:  Test arg_xor_dict if returns false.
+
+        Arguments:
+
+        """
+
+        self.args.opt_xor_val2 = False
+
+        mock_arg.return_value = self.args
+
+        self.assertFalse(mongo_db_restore.main())
+
+    @mock.patch("mongo_db_restore.gen_libs.help_func",
+                mock.Mock(return_value=False))
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_arg_xor_dict_true(self, mock_arg):
+
+        """Function:  test_arg_xor_dict_true
+
+        Description:  Test arg_xor_dict if returns true.
+
+        Arguments:
+
+        """
+
+        self.args.opt_con_req2 = False
+
+        mock_arg.return_value = self.args
+
+        self.assertFalse(mongo_db_restore.main())
+
+    @mock.patch("mongo_db_restore.gen_libs.help_func",
+                mock.Mock(return_value=False))
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_arg_cond_req_false(self, mock_arg):
+
+        """Function:  test_arg_cond_req_false
+
+        Description:  Test arg_cond_req if returns false.
+
+        Arguments:
+
+        """
+
+        self.args.opt_con_req2 = False
+
+        mock_arg.return_value = self.args
+
+        self.assertFalse(mongo_db_restore.main())
+
+    @mock.patch("mongo_db_restore.gen_libs.help_func",
+                mock.Mock(return_value=False))
+    @mock.patch("mongo_db_restore.run_program", mock.Mock(return_value=True))
+    @mock.patch("mongo_db_restore.gen_class.ProgramLock")
+    @mock.patch("mongo_db_restore.gen_class.ArgParser")
+    def test_arg_cond_req_true(self, mock_arg, mock_lock):
+
+        """Function:  test_arg_cond_req_true
+
+        Description:  Test arg_cond_req if returns true.
 
         Arguments:
 
