@@ -40,7 +40,7 @@ exit 2
             -i => Turn off TLS checking.
             -r => Restore database users and roles.
             -k => Drop and recreate collection before restore.
-            -y => Run a dryrun of the restore.
+            -u => Run a dryrun of the restore.
             -e => Run in verbose mode.
 
         -p dir path => Directory path to mongo programs.
@@ -304,7 +304,7 @@ def main():
     func_dict = {"-S": single_db}
     opt_arg_list = {
         "-S": "--db=", "-o": "--dir=", "-z": "--gzip", "-i": "--tlsInsecure",
-        "-r": "--restoreDbUsersAndRoles", "-k": "--drop", "-y": "--dryRun",
+        "-r": "--restoreDbUsersAndRoles", "-k": "--drop", "-u": "--dryRun",
         "-e": "--verbose"}
     opt_req_list = ["-c", "-d", "-o"]
     opt_val_list = ["-c", "-d", "-o", "-p", "-S", "-y"]
