@@ -234,7 +234,7 @@ def single_collection(server, args, **kwargs):
     status, errmsg = args.update_arg("-o", coll_doc)
 
     if status:
-        if args.arg_file_chk(file_perm_chk={"-o": 5}):
+        if args.arg_file_chk(file_perm_chk={"-o": 4}):
             restore(server, args, req_arg=req_arg, opt_arg=opt_arg)
 
         else:
