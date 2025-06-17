@@ -229,7 +229,7 @@ def single_collection(server, args, **kwargs):
     # Added database to the end of the -o argument and check read perms
     # Added collection_name.bson to end of  -o argument and check read perms
     # Return status
-    json_doc = args.get_val("-C") + ".json"
+    json_doc = args.get_val("-C") + ".bson"
     coll_doc = os.path.join(args.get_val("-o"), args.get_val("-b"), json_doc)
     status, errmsg = args.update_arg("-o", coll_doc)
 
