@@ -226,9 +226,6 @@ def single_collection(server, args, **kwargs):
     # Do not allow restoring of users or roles during a collection restore
     del opt_arg["-r"]
 
-    # Added database to the end of the -o argument and check read perms
-    # Added collection_name.bson to end of  -o argument and check read perms
-    # Return status
     json_doc = args.get_val("-C") + ".bson"
     coll_doc = os.path.join(args.get_val("-o"), args.get_val("-b"), json_doc)
     status, errmsg = args.update_arg("-o", coll_doc)
@@ -273,31 +270,6 @@ def single_db(server, args, **kwargs):
 
     return status, errmsg
 
-#    status = (False, None)
-#    req_arg = list(kwargs.get("req_arg", []))
-#    opt_arg = dict(kwargs.get("opt_arg", {}))
-#    auth_db = "--authenticationDatabase="
-
-#    if auth_db in req_arg:
-#        req_arg.remove(auth_db)
-#        req_arg.append(auth_db + server.auth_db)
-
-#    load_cmd = mongo_libs.create_cmd(
-#        server, args, "mongorestore", "-p", no_pass=True, **kwargs)
-#    proc2 = subprocess.Popen(                           # pylint:disable=R1732
-#        ["echo", server.japd], stdout=subprocess.PIPE)
-
-#    load_cmd = mongo_libs.create_cmd(
-#        server, args, "mongorestore", "-p", req_arg=req_arg,
-#        opt_arg=opt_arg)
-
-#    proc1 = subprocess.Popen(                           # pylint:disable=R1732
-#        load_cmd, stdin=proc2.stdout)
-#    proc1.wait()
-#    proc1 = subprocess.Popen(load_cmd)                  # pylint:disable=R1732
-
-#    return status
-
 
 def get_req_options(server, arg_req_dict):
 
@@ -335,7 +307,6 @@ def run_program(args, func_dict, **kwargs):
         (input) **kwargs:
             opt_arg -> Dictionary of additional options to add
             arg_req_dict -> contains link between config and required option
-#            req_arg -> List of options to add to cmd line
 
     """
 
@@ -353,7 +324,6 @@ def run_program(args, func_dict, **kwargs):
         for item in set(args.get_args_keys()) & set(func_dict.keys()):
             status2 = func_dict[item](
                 server, args, req_arg=req_arg, opt_arg=opt_arg)
-#            err_flag, err_msg = func_dict[item](server, args, **kwargs)
 
             if not status2[0]:
                 print(status2[1])
@@ -380,7 +350,6 @@ def main():
         opt_req_list -> contains the options that are required for the program
         opt_val_list -> contains options which require values
         opt_xor_dict -> contains dict with key that is xor with it's values
-#        req_arg_list -> contains arguments to add to command line by default
 
     Arguments:
         (input) argv -> Arguments from the command line.
@@ -398,7 +367,6 @@ def main():
     opt_req_list = ["-c", "-d", "-o"]
     opt_val_list = ["-c", "-d", "-o", "-p", "-S", "-y", "-b", "-C"]
     opt_xor_dict = {"-S": ["-C"], "-C": ["-S"]}
-#    req_arg_list = ["--authenticationDatabase="]
 
     # Process argument list from command line
     args = gen_class.ArgParser(sys.argv, opt_val=opt_val_list)
@@ -416,8 +384,6 @@ def main():
             run_program(
                 args, func_dict, opt_arg=opt_arg_list,
                 arg_req_dict=arg_req_dict)
-#            run_program(
-#                args, func_dict, opt_arg=opt_arg_list, req_arg=req_arg_list)
             del prog_lock
 
         except gen_class.SingleInstanceException:
