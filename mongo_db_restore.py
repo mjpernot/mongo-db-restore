@@ -36,7 +36,7 @@ exit 2
         -d dir path => Directory path to config file (-c).
 
         -S db_name => Restore database - pass database name.
-            -o dir path/db_name => Directory path to database dump directory.
+            -o dir path => Base directory path (do not include database name).
             -z => Uncompress dump files.
             -i => Turn off TLS checking.
             -r => Restore database users and roles.
@@ -46,7 +46,7 @@ exit 2
 
         -C coll_name => Restore collection - pass collection name.
             -b db_name => Name of database.
-            -o dir path/db_name => Directory path to database dump directory.
+            -o dir path => Base directory path (do not include database name).
             -z => Uncompress dump files.
             -i => Turn off TLS checking.
             -k => Drop and recreate collection before restore.
@@ -143,6 +143,7 @@ exit 2
 
 # Standard
 import sys
+import os
 import subprocess
 
 # Local
@@ -228,8 +229,19 @@ def single_collection(server, args, **kwargs):
     # Added database to the end of the -o argument and check read perms
     # Added collection_name.bson to end of  -o argument and check read perms
     # Return status
+    json_doc = args.get_val("-C") + ".json"
+    coll_doc = os.path.join(args.get_val("-o"), args.get_val("-b"), json_doc)
+    status, errmsg = args.update_arg("-o", coll_doc)
 
-    restore(server, args, req_arg=req_arg, opt_arg=opt_arg)
+    if status:
+        if args.arg_file_chk(file_perm_chk={"-o": 5}):
+            restore(server, args, req_arg=req_arg, opt_arg=opt_arg)
+
+        else:
+            status = False
+            errmsg = f"single_collection: No read perms: {args.get_val('-o')}"
+
+    return status, errmsg
 
 def single_db(server, args, **kwargs):
 
@@ -243,13 +255,23 @@ def single_db(server, args, **kwargs):
         (input) **kwargs:
             opt_arg -> Dictionary of additional options to add
             req_arg -> List of options to add to cmd line
+        (output) status -> True|False - If successful operation
+        (output) errmsg = Error message if operation failed
 
     """
 
-    # Added database to the end of the -o argument and check read perms
-    # Return status
+    db_dir = os.path.join(args.get_val("-o"), args.get_val("-S"))
+    status, errmsg = args.update_arg("-o", db_dir)
 
-    restore(server, args, **kwargs)
+    if status:
+        if args.arg_dir_chk(dir_perms_chk={"-o": 5}):
+            restore(server, args, **kwargs)
+
+        else:
+            status = False
+            errmsg = f"single_db: Incorrect perms: {args.get_val('-o')}"
+
+    return status, errmsg
 
 #    status = (False, None)
 #    req_arg = list(kwargs.get("req_arg", []))
@@ -329,12 +351,12 @@ def run_program(args, func_dict, **kwargs):
 
         # Intersect args_array and func_dict to find which functions to call
         for item in set(args.get_args_keys()) & set(func_dict.keys()):
-            err_flag, err_msg = func_dict[item](
+            status2 = func_dict[item](
                 server, args, req_arg=req_arg, opt_arg=opt_arg)
 #            err_flag, err_msg = func_dict[item](server, args, **kwargs)
 
-            if err_flag:
-                print(err_msg)
+            if not status2[0]:
+                print(status2[1])
 
         mongo_libs.disconnect([server])
 

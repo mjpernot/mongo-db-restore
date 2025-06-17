@@ -5,11 +5,14 @@ The format is based on "Keep a Changelog".  This project adheres to Semantic Ver
 
 
 ## [0.1.2] - 2025-06-13
+Breaking Change
+
 - Updated python-lib to v4.0.2
 - Updated mongo-lib to v4.5.3
 - Moved setting authentication database to its own function.
 - Added option for collection restore.
 - Added a number of options for the mongorestore command such as: restore users and roles, verbose mode, drop collection, dry run mode, uncompress dumps.
+- Changed -o option to only pass the directory path which contains the database dump directories.
 - Removed support for Mongo v4.2
 
 ### Added
@@ -19,8 +22,8 @@ The format is based on "Keep a Changelog".  This project adheres to Semantic Ver
 
 ### Changed
 - main: Added arg_cond_req and arg_xor_dict calls to the argument checks.
-- single_db: Removed setting authentication database and set up a second subprocess call to increase security.
-- run_program: Replaced req_arg_list with arg_req_dict, added call to get_req_options and removed status on check on returning function calls.
+- single_db: Removed setting authentication database and moved the restore command to its own function.
+- run_program: Replaced req_arg_list with arg_req_dict and added call to get_req_options.
 - main: Replaced req_arg_list with arg_req_dict to allow for other options to be included in the future.
 
 

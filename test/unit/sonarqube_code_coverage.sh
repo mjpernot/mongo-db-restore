@@ -12,6 +12,8 @@ coverage run -a --source=mongo_db_restore test/unit/mongo_db_restore/get_req_opt
 coverage run -a --source=mongo_db_restore test/unit/mongo_db_restore/help_message.py
 coverage run -a --source=mongo_db_restore test/unit/mongo_db_restore/main.py
 coverage run -a --source=mongo_db_restore test/unit/mongo_db_restore/run_program.py
+coverage run -a --source=mongo_db_restore test/unit/mongo_db_restore/restore.py
+coverage run -a --source=mongo_db_restore test/unit/mongo_db_restore/single_collection.py
 coverage run -a --source=mongo_db_restore test/unit/mongo_db_restore/single_db.py
 
 
