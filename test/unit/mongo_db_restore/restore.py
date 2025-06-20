@@ -1,12 +1,12 @@
 #!/usr/bin/python
 # Classification (U)
 
-"""Program:  single_db.py
+"""Program:  restore.py
 
-    Description:  Unit testing of single_db in mongo_db_restore.py.
+    Description:  Unit testing of restore in mongo_db_restore.py.
 
     Usage:
-        test/unit/mongo_db_restore/single_db.py
+        test/unit/mongo_db_restore/restore.py
 
     Arguments:
 
@@ -28,7 +28,7 @@ import version                                  # pylint:disable=E0401,C0413
 __version__ = version.__version__
 
 
-class ArgParser():
+class ArgParser():                                      # pylint:disable=R0903
 
     """Class:  ArgParser
 
@@ -36,9 +36,6 @@ class ArgParser():
 
     Methods:
         __init__
-        arg_dir_chk
-        get_val
-        update_arg
 
     """
 
@@ -52,59 +49,62 @@ class ArgParser():
 
         """
 
-        self.args_array = {"-c": "rabbitmq", "-d": "config", "-S": "dbname"}
-        self.dir_perms_chk = None
-        self.dir_perms_chk_results = True
+        self.args_array = {"-c": "rabbitmq", "-d": "config"}
 
-    def arg_dir_chk(self, dir_perms_chk):
 
-        """Method:  arg_dir_chk
+class SubProcess():
 
-        Description:  Method stub holder for gen_class.ArgParser.arg_dir_chk.
+    """Class:  SubProcess
 
-        Arguments:
+    Description:  Class which is a representation of the subprocess class.
 
-        """
+    Methods:
+        __init__
+        wait
+        PIPE
+        stdout
 
-        self.dir_perms_chk = dir_perms_chk
+    """
 
-        return self.dir_perms_chk_results
+    def __init__(self):
 
-    def get_val(self, skey, def_val=None):
+        """Method:  __init__
 
-        """Method:  get_val
-
-        Description:  Method stub holder for gen_class.ArgParser.get_val.
-
-        Arguments:
-
-        """
-
-        return self.args_array.get(skey, def_val)
-
-    def update_arg(self, arg_key, arg_val, **kwargs):
-
-        """Method:  update_arg
-
-        Description:  Method stub holder for gen_class.ArgParser.update_arg.
+        Description:  Initialization instance of the ZipFile class.
 
         Arguments:
 
         """
 
-        errmsg = None
-        status = True
-        insert = kwargs.get("insert", False)
+    def wait(self):
 
-        if arg_key in self.args_array \
-           or (arg_key not in self.args_array and insert):
-            self.args_array[arg_key] = arg_val
+        """Method:  wait
 
-        else:
-            status = False
-            errmsg = "Arg key does not exists"
+        Description:  Mock representation of subprocess.wait method.
 
-        return status, errmsg
+        Arguments:
+
+        """
+
+    def PIPE(self):                                     # pylint:disable=C0103
+
+        """Method:  PIPE
+
+        Description:  Mock representation of subprocess.PIPE method.
+
+        Arguments:
+
+        """
+
+    def stdout(self):
+
+        """Method:  stdout
+
+        Description:  Mock representation of subprocess.stdout method.
+
+        Arguments:
+
+        """
 
 
 class Server():
@@ -179,7 +179,6 @@ class UnitTest(unittest.TestCase):
 
     Methods:
         setUp
-        test_dir_chk_failure
         test_db_load
 
     """
@@ -196,25 +195,13 @@ class UnitTest(unittest.TestCase):
 
         self.server = Server()
         self.args = ArgParser()
+        self.subp = SubProcess()
+        self.args.args_array = {"-p": "DirectoryPath2"}
         self.req_arg = ["--authenticationDatabase="]
 
-    def test_dir_chk_failure(self):
-
-        """Function:  test_dir_chk_failure
-
-        Description:  Test with directory check failure.
-
-        Arguments:
-
-        """
-
-        self.args.args_array["-o"] = "/basedir"
-        self.args.dir_perms_chk_results = False
-
-        self.assertFalse(mongo_db_restore.single_db(self.server, self.args)[0])
-
-    @mock.patch("mongo_db_restore.restore", mock.Mock(return_value=True))
-    def test_db_load(self):
+    @mock.patch("mongo_db_restore.subprocess.Popen")
+    @mock.patch("mongo_db_restore.mongo_libs.create_cmd")
+    def test_db_load(self, mock_cmd, mock_subp):
 
         """Function:  test_db_load
 
@@ -224,9 +211,10 @@ class UnitTest(unittest.TestCase):
 
         """
 
-        self.args.args_array["-o"] = "/basedir"
+        mock_cmd.return_value = "mongorestore"
+        mock_subp.return_value = self.subp
 
-        self.assertTrue(mongo_db_restore.single_db(self.server, self.args)[0])
+        self.assertFalse(mongo_db_restore.restore(self.server, self.args))
 
 
 if __name__ == "__main__":

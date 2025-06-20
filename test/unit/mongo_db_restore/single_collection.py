@@ -1,12 +1,12 @@
 #!/usr/bin/python
 # Classification (U)
 
-"""Program:  single_db.py
+"""Program:  single_collection.py
 
-    Description:  Unit testing of single_db in mongo_db_restore.py.
+    Description:  Unit testing of single_collection in mongo_db_restore.py.
 
     Usage:
-        test/unit/mongo_db_restore/single_db.py
+        test/unit/mongo_db_restore/single_collection.py
 
     Arguments:
 
@@ -36,7 +36,7 @@ class ArgParser():
 
     Methods:
         __init__
-        arg_dir_chk
+        arg_file_chk
         get_val
         update_arg
 
@@ -52,23 +52,24 @@ class ArgParser():
 
         """
 
-        self.args_array = {"-c": "rabbitmq", "-d": "config", "-S": "dbname"}
-        self.dir_perms_chk = None
-        self.dir_perms_chk_results = True
+        self.args_array = {
+            "-c": "rabbitmq", "-d": "config", "-C": "collname", "-b": "dbname"}
+        self.file_perm_chk = None
+        self.arg_file_chk2 = True
 
-    def arg_dir_chk(self, dir_perms_chk):
+    def arg_file_chk(self, file_perm_chk):
 
-        """Method:  arg_dir_chk
+        """Method:  arg_file_chk
 
-        Description:  Method stub holder for gen_class.ArgParser.arg_dir_chk.
+        Description:  Method stub holder for gen_class.ArgParser.arg_file_chk.
 
         Arguments:
 
         """
 
-        self.dir_perms_chk = dir_perms_chk
+        self.file_perm_chk = file_perm_chk
 
-        return self.dir_perms_chk_results
+        return self.arg_file_chk2
 
     def get_val(self, skey, def_val=None):
 
@@ -179,7 +180,7 @@ class UnitTest(unittest.TestCase):
 
     Methods:
         setUp
-        test_dir_chk_failure
+        test_file_chk_failure
         test_db_load
 
     """
@@ -197,21 +198,28 @@ class UnitTest(unittest.TestCase):
         self.server = Server()
         self.args = ArgParser()
         self.req_arg = ["--authenticationDatabase="]
+        self.opt_arg = {
+            "-S": "--db=", "-o": "--dir=", "-z": "--gzip",
+            "-i": "--tlsInsecure", "-r": "--restoreDbUsersAndRoles",
+            "-k": "--drop", "-u": "--dryRun", "-e": "--verbose", "-b": "--db=",
+            "-C": "--collection="}
 
-    def test_dir_chk_failure(self):
+    def test_file_chk_failure(self):
 
-        """Function:  test_dir_chk_failure
+        """Function:  test_file_chk_failure
 
-        Description:  Test with directory check failure.
+        Description:  Test with file check failure.
 
         Arguments:
 
         """
 
         self.args.args_array["-o"] = "/basedir"
-        self.args.dir_perms_chk_results = False
+        self.args.arg_file_chk2 = False
 
-        self.assertFalse(mongo_db_restore.single_db(self.server, self.args)[0])
+        self.assertFalse(
+            mongo_db_restore.single_collection(
+                self.server, self.args, opt_arg=self.opt_arg)[0])
 
     @mock.patch("mongo_db_restore.restore", mock.Mock(return_value=True))
     def test_db_load(self):
@@ -226,7 +234,9 @@ class UnitTest(unittest.TestCase):
 
         self.args.args_array["-o"] = "/basedir"
 
-        self.assertTrue(mongo_db_restore.single_db(self.server, self.args)[0])
+        self.assertTrue(
+            mongo_db_restore.single_collection(
+                self.server, self.args, opt_arg=self.opt_arg)[0])
 
 
 if __name__ == "__main__":

@@ -39,11 +39,11 @@ def single_db2(server, args, **kwargs):                 # pylint:disable=W0613
 
     """
 
-    status = True
+    status = False
     err_msg = "Dump Failure"
 
     if server and args:
-        status = True
+        status = False
         err_msg = "Load Failure"
 
     return status, err_msg
@@ -59,11 +59,11 @@ def single_db(server, args, **kwargs):                  # pylint:disable=W0613
 
     """
 
-    status = False
+    status = True
     err_msg = None
 
     if server and args:
-        status = False
+        status = True
         err_msg = None
 
     return status, err_msg
