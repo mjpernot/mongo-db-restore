@@ -240,6 +240,7 @@ def single_collection(server, args, **kwargs):
 
     return status, errmsg
 
+
 def single_db(server, args, **kwargs):
 
     """Function:  single_db
