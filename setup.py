@@ -55,5 +55,4 @@ setuptools.setup(
         "Programming Language :: Python :: 3.12",
         "Topic :: Database",
         "Topic :: Database :: Mongodb",
-        "Topic :: Database :: Mongodb :: 4.2",
         "Topic :: Database :: Mongodb :: 7.0"])

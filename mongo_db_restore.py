@@ -25,22 +25,36 @@ exit 2
         a Mongo database.
 
     Usage:
-        mongo_db_restore.py -c file -d path -o path
-            {-S db_name}
+        mongo_db_restore.py -c file -d path
+            {-S db_name -o path [-z] [-i] [-r] [-k] [-y] [-e] |
+             -C db_name -t coll_name -o path [-z] [-i] [-k] [-y] [-e]}
             [-p path] [-y flavor_id]
             [-v | -h]
 
     Arguments:
-        -c file => Server configuration file.  Required argument.
-        -d dir path => Directory path to config file (-c). Required argument.
-        -o dir path => Directory path to datbase dump directory.
-            Required argument.
+        -c file => Server configuration file.
+        -d dir path => Directory path to config file (-c).
 
-        -S db_name => Database name to be restored to.
+        -S db_name => Restore database - pass database name.
+            -o dir path => Base directory path (do not include database name).
+            -z => Uncompress dump files.
+            -i => Turn off TLS checking.
+            -r => Restore database users and roles.
+            -k => Drop and recreate collection before restore.
+            -u => Run a dryrun of the restore.
+            -e => Run in verbose mode.
+
+        -C coll_name => Restore collection - pass collection name.
+            -b db_name => Name of database.
+            -o dir path => Base directory path (do not include database name).
+            -z => Uncompress dump files.
+            -i => Turn off TLS checking.
+            -k => Drop and recreate collection before restore.
+            -u => Run a dryrun of the restore.
+            -e => Run in verbose mode.
 
         -p dir path => Directory path to mongo programs.
-            Only needed if the mongo binary programs do not run properly.
-            (i.e. not in the $PATH variable.)
+            NOTE: Only needed if the mongo binary programs do not run properly.
         -y value => A flavor id for the program lock.  To create unique lock.
         -v => Display version of this program.
         -h => Help and usage message.
@@ -100,8 +114,8 @@ exit 2
                     tls_certkey = None
                     tls_certkey_phrase = None
 
-            Note:  FIPS Environment for Mongo.
-              If operating in a FIPS 104-2 environment, this package will
+            Note:  Secure Environment for Mongo.
+              If operating in a secure environment, this package will
               require at least a minimum of pymongo==3.8.0 or better.  It will
               also require a manual change to the auth.py module in the pymongo
               package.  See below for changes to auth.py.
@@ -129,6 +143,7 @@ exit 2
 
 # Standard
 import sys
+import os
 import subprocess
 
 # Local
@@ -165,6 +180,67 @@ def help_message():
     print(__doc__)
 
 
+def restore(server, args, **kwargs):
+
+    """Function:  restore
+
+    Description:  Run restore command in subprocess call.
+
+    Arguments:
+        (input) server -> Mongo server instance
+        (input) args -> ArgParser class instance
+        (input) **kwargs:
+            opt_arg -> Dictionary of additional options to add
+            req_arg -> List of options to add to cmd line
+
+    """
+
+    load_cmd = mongo_libs.create_cmd(
+        server, args, "mongorestore", "-p", no_pass=True, **kwargs)
+    proc2 = subprocess.Popen(                           # pylint:disable=R1732
+        ["echo", server.japd], stdout=subprocess.PIPE)
+
+    proc1 = subprocess.Popen(                           # pylint:disable=R1732
+        load_cmd, stdin=proc2.stdout)
+    proc1.wait()
+
+
+def single_collection(server, args, **kwargs):
+
+    """Function:  single_collection
+
+    Description:  Restore single collection.
+
+    Arguments:
+        (input) server -> Mongo server instance
+        (input) args -> ArgParser class instance
+        (input) **kwargs:
+            opt_arg -> Dictionary of additional options to add
+            req_arg -> List of options to add to cmd line
+
+    """
+
+    req_arg = list(kwargs.get("req_arg", []))
+    opt_arg = dict(kwargs.get("opt_arg", {}))
+
+    # Do not allow restoring of users or roles during a collection restore
+    del opt_arg["-r"]
+
+    json_doc = args.get_val("-C") + ".bson"
+    coll_doc = os.path.join(args.get_val("-o"), args.get_val("-b"), json_doc)
+    status, errmsg = args.update_arg("-o", coll_doc)
+
+    if status:
+        if args.arg_file_chk(file_perm_chk={"-o": 4}):
+            restore(server, args, req_arg=req_arg, opt_arg=opt_arg)
+
+        else:
+            status = False
+            errmsg = f"single_collection: No read perms: {args.get_val('-o')}"
+
+    return status, errmsg
+
+
 def single_db(server, args, **kwargs):
 
     """Function:  single_db
@@ -172,33 +248,52 @@ def single_db(server, args, **kwargs):
     Description:  Restore single database.
 
     Arguments:
-        (input) server -> Database server instance
+        (input) server -> Mongo server instance
         (input) args -> ArgParser class instance
         (input) **kwargs:
             opt_arg -> Dictionary of additional options to add
             req_arg -> List of options to add to cmd line
-        (output) False -> If an error has occurred
-        (output) None -> Error message
+        (output) status -> True|False - If successful operation
+        (output) errmsg = Error message if operation failed
 
     """
 
-    auth_db = "--authenticationDatabase="
+    db_dir = os.path.join(args.get_val("-o"), args.get_val("-S"))
+    status, errmsg = args.update_arg("-o", db_dir)
 
-    req_arg = list(kwargs.get("req_arg", []))
-    opt_arg = dict(kwargs.get("opt_arg", {}))
+    if status:
+        if args.arg_dir_chk(dir_perms_chk={"-o": 5}):
+            restore(server, args, **kwargs)
 
-    if auth_db in req_arg:
-        req_arg.remove(auth_db)
-        req_arg.append(auth_db + server.auth_db)
+        else:
+            status = False
+            errmsg = f"single_db: Incorrect perms: {args.get_val('-o')}"
 
-    load_cmd = mongo_libs.create_cmd(
-        server, args, "mongorestore", "-p", req_arg=req_arg,
-        opt_arg=opt_arg)
+    return status, errmsg
 
-    proc1 = subprocess.Popen(load_cmd)                  # pylint:disable=R1732
-    proc1.wait()
 
-    return False, None
+def get_req_options(server, arg_req_dict):
+
+    """Function:  get_req_options
+
+    Description:  Assigns configuration entry values to required options.  If
+        the entry is not set (e.g. None), then the option is skipped.
+
+    Arguments:
+        (input) server -> Database server instance
+        (input) arg_req_dict -> Contains dictionary of config and required
+            option
+        (output) arg_rep -> List of required options with values
+
+    """
+
+    arg_req_dict = dict(arg_req_dict)
+
+    arg_req = [arg_req_dict[item] + getattr(server, item)
+               for item in list(arg_req_dict.keys())
+               if hasattr(server, item) and getattr(server, item)]
+
+    return arg_req
 
 
 def run_program(args, func_dict, **kwargs):
@@ -212,23 +307,27 @@ def run_program(args, func_dict, **kwargs):
         (input) func_dict -> Dictionary list of functions and options
         (input) **kwargs:
             opt_arg -> Dictionary of additional options to add
-            req_arg -> List of options to add to cmd line
+            arg_req_dict -> contains link between config and required option
 
     """
 
     func_dict = dict(func_dict)
+    arg_req_dict = dict(kwargs.get("arg_req_dict", {}))
+    opt_arg = dict(kwargs.get("opt_arg", {}))
     server = mongo_libs.create_instance(
         args.get_val("-c"), args.get_val("-d"), mongo_class.Server)
     status, errmsg = server.connect()
 
     if status:
+        req_arg = get_req_options(server, arg_req_dict)
 
         # Intersect args_array and func_dict to find which functions to call
         for item in set(args.get_args_keys()) & set(func_dict.keys()):
-            err_flag, err_msg = func_dict[item](server, args, **kwargs)
+            status2 = func_dict[item](
+                server, args, req_arg=req_arg, opt_arg=opt_arg)
 
-            if err_flag:
-                print(err_msg)
+            if not status2[0]:
+                print(status2[1])
 
         mongo_libs.disconnect([server])
 
@@ -244,24 +343,31 @@ def main():
         line arguments and values.
 
     Variables:
+        arg_req_dict -> contains link between config entry and required option
         dir_perms_chk -> contains directories and their octal permissions
         func_dict -> dictionary list for the function calls or other options
         opt_arg_list -> contains optional arguments for the command line
+        opt_con_req_list -> contains the options that require other options
         opt_req_list -> contains the options that are required for the program
         opt_val_list -> contains options which require values
-        req_arg_list -> contains arguments to add to command line by default
+        opt_xor_dict -> contains dict with key that is xor with it's values
 
     Arguments:
         (input) argv -> Arguments from the command line.
 
     """
 
-    dir_perms_chk = {"-d": 5, "-o": 7, "-p": 5}
-    func_dict = {"-S": single_db}
-    opt_arg_list = {"-S": "--db=", "-o": "--dir="}
+    arg_req_dict = {"auth_db": "--authenticationDatabase="}
+    dir_perms_chk = {"-d": 5, "-o": 5, "-p": 5}
+    func_dict = {"-S": single_db, "-C": single_collection}
+    opt_arg_list = {
+        "-S": "--db=", "-o": "--dir=", "-z": "--gzip", "-i": "--tlsInsecure",
+        "-r": "--restoreDbUsersAndRoles", "-k": "--drop", "-u": "--dryRun",
+        "-e": "--verbose", "-b": "--db=", "-C": "--collection="}
+    opt_con_req_list = {"-S": ["-o"], "-C": ["-o", "-b"]}
     opt_req_list = ["-c", "-d", "-o"]
-    opt_val_list = ["-c", "-d", "-o", "-p", "-S", "-y"]
-    req_arg_list = ["--authenticationDatabase="]
+    opt_val_list = ["-c", "-d", "-o", "-p", "-S", "-y", "-b", "-C"]
+    opt_xor_dict = {"-S": ["-C"], "-C": ["-S"]}
 
     # Process argument list from command line
     args = gen_class.ArgParser(sys.argv, opt_val=opt_val_list)
@@ -269,13 +375,16 @@ def main():
     if args.arg_parse2()                                            \
        and not gen_libs.help_func(args, __version__, help_message)  \
        and args.arg_require(opt_req=opt_req_list)                   \
-       and args.arg_dir_chk(dir_perms_chk=dir_perms_chk):
+       and args.arg_dir_chk(dir_perms_chk=dir_perms_chk)            \
+       and args.arg_xor_dict(opt_xor_val=opt_xor_dict)              \
+       and args.arg_cond_req(opt_con_req=opt_con_req_list):
 
         try:
             prog_lock = gen_class.ProgramLock(
                 sys.argv, args.get_val("-y", def_val=""))
             run_program(
-                args, func_dict, opt_arg=opt_arg_list, req_arg=req_arg_list)
+                args, func_dict, opt_arg=opt_arg_list,
+                arg_req_dict=arg_req_dict)
             del prog_lock
 
         except gen_class.SingleInstanceException:
