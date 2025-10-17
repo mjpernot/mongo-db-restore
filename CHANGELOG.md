@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on "Keep a Changelog".  This project adheres to Semantic Versioning.
 
 
+## [0.1.3] - 2025-10-17
+- Updated simplejson=3.19.2
+- Added support for Python 3.13
+- Updated mock==5.2.0
+- Updated python-lib to v4.1.0
+- Updated mongo-lib to v4.5.4
+
+### Changed
+- Documentation changes
+
+
 ## [0.1.2] - 2025-06-13
 Breaking Change
 
